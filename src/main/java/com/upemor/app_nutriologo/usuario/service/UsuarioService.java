@@ -10,4 +10,8 @@ public interface UsuarioService {
     UsuarioResponseDTO guardarUsuario(UsuarioRequestDTO usuarioRequestDTO);
 
     List<UsuarioResponseDTO> listarUsuarios();
+
+    UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO);
+
+    void eliminarUsuario(Long id);
 }

@@ -2,6 +2,7 @@ package com.upemor.app_nutriologo.usuario.service;
 
 import com.upemor.app_nutriologo.correo.service.EmailService;
 import com.upemor.app_nutriologo.exceptions.DuplicateResourceException;
+import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
@@ -10,6 +11,7 @@ import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -25,6 +27,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final EmailService emailService;
 
     @Override
+    @Transactional
     public UsuarioResponseDTO guardarUsuario(UsuarioRequestDTO usuarioRequestDTO) {
         if (usuarioRepository.existsByCorreo(usuarioRequestDTO.getCorreo())) {
             throw new DuplicateResourceException("El correo " + usuarioRequestDTO.getCorreo() + " ya está en uso.");
@@ -49,11 +52,38 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarUsuarios() {
         return usuarioRepository.findAll()
                 .stream()
                 .map(usuarioMapper::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
+        return usuarioRepository.findById(id)
+                .map(usuario -> {
+                    usuario.setNombre(usuarioRequestDTO.getNombre());
+                    usuario.setApellidoPaterno(usuarioRequestDTO.getApellidoPaterno());
+                    usuario.setApellidoMaterno(usuarioRequestDTO.getApellidoMaterno());
+                    usuario.setTelefono(usuarioRequestDTO.getTelefono());
+                    usuario.setFechaNacimiento(usuarioRequestDTO.getFechaNacimiento());
+                    usuario.setGenero(usuarioRequestDTO.getGenero());
+
+                    return usuarioMapper.toResponseDto(usuarioRepository.save(usuario));
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con el id: " + id));
+    }
+
+    @Override
+    @Transactional
+    public void eliminarUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new ResourceNotFoundException("No se encontró el usuario con el id: " + id);
+        }
+        usuarioRepository.deleteById(id);
     }
 
     public static String generarContrasena() {

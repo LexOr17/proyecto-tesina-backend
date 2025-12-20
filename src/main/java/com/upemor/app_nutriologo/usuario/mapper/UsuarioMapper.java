@@ -13,6 +13,7 @@ import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
@@ -46,6 +47,8 @@ public interface UsuarioMapper {
     Nutriologo toNutriologoEntity(NutriologoRequestDTO dto);
 
     PacienteResponseDTO toPacienteResponseDto(Paciente paciente);
+
+    @Mapping(target = "nutriologo.id", source = "nutriologoId")
     Paciente toPacienteEntity(PacienteRequestDTO dto);
 
     AdministradorResponseDTO toAdminResponseDto(Administrador administrador);

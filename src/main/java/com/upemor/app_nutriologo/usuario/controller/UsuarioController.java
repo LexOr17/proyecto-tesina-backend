@@ -44,4 +44,29 @@ public class UsuarioController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<UsuarioResponseDTO>> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
+        UsuarioResponseDTO usuarioActualizado = usuarioService.actualizarUsuario(id, usuarioRequestDTO);
+
+        ApiResponse<UsuarioResponseDTO> response = ApiResponse.<UsuarioResponseDTO>builder()
+                .estatus(HttpStatus.OK.value())
+                .mensaje("Usuario actualizado exitosamente")
+                .datos(usuarioActualizado)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> eliminarUsuario(@PathVariable Long id) {
+        usuarioService.eliminarUsuario(id);
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .estatus(HttpStatus.NO_CONTENT.value())
+                .mensaje("Usuario eliminado exitosamente")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+    }
 }

@@ -19,22 +19,22 @@
 //    private final UsuarioRepository usuarioRepository;
 //    private final PasswordEncoder passwordEncoder;
 //
-////    @Override
-////    public void run(String... args) throws Exception {
-//////        if (usuarioRepository.findByCorreo("admin@nutriologo.com") != null) {
-//////            Administrador admin = new Administrador();
-//////            admin.setNombre("Admin");
-//////            admin.setApellidoPaterno("Principal");
-//////            admin.setCorreo("admin@nutriologo.com");
-//////            admin.setContrasena(passwordEncoder.encode("admin123"));
-//////            admin.setRol(Rol.ADMINISTRADOR);
-//////            admin.setGenero(Genero.OTRO);
-//////            admin.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-//////            admin.setFechaRegistro(LocalDateTime.now());
-//////            admin.setTelefono("0000000000");
-//////            admin.setTipoAdmin("SUPER_ADMIN");
-//////
-//////            usuarioRepository.save(admin);
-////        }
-////    }
+//    @Override
+//    public void run(String... args) throws Exception {
+//        if (usuarioRepository.findByCorreo("admin@nutriologo.com") != null) {
+//            Administrador admin = new Administrador();
+//            admin.setNombre("Admin");
+//            admin.setApellidoPaterno("Principal");
+//            admin.setCorreo("admin@nutriologo.com");
+//            admin.setContrasena(passwordEncoder.encode("admin123"));
+//            admin.setRol(Rol.ADMINISTRADOR);
+//            admin.setGenero(Genero.MASCULINO);
+//            admin.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+//            admin.setFechaRegistro(LocalDateTime.now());
+//            admin.setTelefono("0000000000");
+//            admin.setTipoAdmin("SUPER_ADMIN");
+//
+//            usuarioRepository.save(admin);
+//        }
+//    }
 //}

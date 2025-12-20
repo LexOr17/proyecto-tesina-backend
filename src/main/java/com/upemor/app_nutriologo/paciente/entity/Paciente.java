@@ -1,8 +1,9 @@
 package com.upemor.app_nutriologo.paciente.entity;
 
+import com.upemor.app_nutriologo.medidas.entity.MedidaAntropometrica;
+import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,10 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class Paciente extends Usuario {
 
-    private String datoPrueba;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nutriologo_id", nullable = false)
+    private Nutriologo nutriologo;
 
+    @OneToOne(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MedidaAntropometrica medidaAntropometrica;
 }
