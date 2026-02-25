@@ -2,7 +2,6 @@ package com.upemor.app_nutriologo.paciente.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 public class PacienteRequestDTO extends UsuarioRequestDTO {
 
     @JsonProperty("nutriologo_id")
-    @NotNull(message = "El campo del nutriologo es es obligatorio")
     private Long nutriologoId;
 
 }

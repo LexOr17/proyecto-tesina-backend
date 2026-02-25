@@ -8,18 +8,13 @@ import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import com.upemor.app_nutriologo.usuario.mapper.UsuarioMapper;
 import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
+import com.upemor.app_nutriologo.utils.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.security.SecureRandom;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,14 +39,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario entidad = usuarioMapper.toEntity(usuarioRequestDTO);
 
-//        // Lógica para asignar nutriólogo si el ID está presente en el DTO
-//        if (usuarioRequestDTO.getNutriologoId() != null) {
-//            Usuario nutriologo = usuarioRepository.findById(usuarioRequestDTO.getNutriologoId())
-//                    .orElseThrow(() -> new ResourceNotFoundException("No se encontró el nutriólogo con id: " + usuarioRequestDTO.getNutriologoId()));
-//            entidad.setNutriologo(nutriologo);
-//        }
-
-        String contrasenaGenerada = generarContrasena();
+        String contrasenaGenerada = PasswordGenerator.generarContrasena();
         entidad.setContrasena(passwordEncoder.encode(contrasenaGenerada));
 
         Usuario guardado = usuarioRepository.save(entidad);
@@ -106,43 +94,6 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new ResourceNotFoundException("No se encontró el usuario con el id: " + id);
         }
         usuarioRepository.deleteById(id);
-    }
-
-    public static String generarContrasena() {
-        final String MAYUS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        final String MINUS = "abcdefghijklmnopqrstuvwxyz";
-        final String NUM = "0123456789";
-        final String ESPEC = "!@#$%^&*()-_=+[]{};:,.<>?/";
-
-        final String TODOS = MAYUS + MINUS + NUM + ESPEC;
-
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder(8);
-
-        // Garantizar que tenga al menos uno de cada tipo
-        password.append(MAYUS.charAt(random.nextInt(MAYUS.length())));
-        password.append(MINUS.charAt(random.nextInt(MINUS.length())));
-        password.append(NUM.charAt(random.nextInt(NUM.length())));
-        password.append(ESPEC.charAt(random.nextInt(ESPEC.length())));
-
-        // Completar hasta 8 caracteres
-        for (int i = 4; i < 8; i++) {
-            password.append(TODOS.charAt(random.nextInt(TODOS.length())));
-        }
-
-        // Mezclar los caracteres para que no queden en orden predecible
-        return mezclar(password.toString(), random);
-    }
-
-    private static String mezclar(String input, SecureRandom random) {
-        char[] arr = input.toCharArray();
-        for (int i = 0; i < arr.length; i++) {
-            int j = random.nextInt(arr.length);
-            char temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-        return new String(arr);
     }
 
 }

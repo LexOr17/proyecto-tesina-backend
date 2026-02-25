@@ -1,14 +1,20 @@
 package com.upemor.app_nutriologo.nutriologo.service;
 
+import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.nutriologo.dto.NutriologoSelectorDTO;
 import com.upemor.app_nutriologo.nutriologo.repository.NutriologoRepository;
 import com.upemor.app_nutriologo.paciente.dto.PacienteRequestDTO;
+import com.upemor.app_nutriologo.paciente.repository.PacienteRepository;
 import com.upemor.app_nutriologo.security.UserContextService;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.enums.Rol;
+import com.upemor.app_nutriologo.usuario.mapper.UsuarioMapper;
 import com.upemor.app_nutriologo.usuario.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +25,10 @@ import java.util.List;
 public class ServiceNutriologoImpl implements ServiceNutriologo {
 
     private final NutriologoRepository nutriologoRepository;
+    private final PacienteRepository pacienteRepository;
     private final UsuarioService usuarioService;
     private final UserContextService userContextService;
+    private final UsuarioMapper usuarioMapper;
 
     @Override
     public List<NutriologoSelectorDTO> selectorDeNutriologos() {
@@ -31,17 +39,59 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
     @Override
     @Transactional
     public UsuarioResponseDTO registrarPaciente(PacienteRequestDTO pacienteDTO) {
-        // Obtener el ID del Nutriólogo autenticado usando el servicio centralizado
         Long idNutriologoLogueado = userContextService.getCurrentUserId();
-
-        // FORZAR la relación: El paciente es del nutriólogo que lo registra
         pacienteDTO.setNutriologoId(idNutriologoLogueado);
-
-        // Asegurar que el rol sea PACIENTE
         pacienteDTO.setRol(Rol.PACIENTE);
-
-        // Delegar el guardado al servicio de usuarios
         return usuarioService.guardarUsuario(pacienteDTO);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UsuarioResponseDTO> listarPacientesAsignados(Pageable pageable) {
+        Long idNutriologoLogueado = userContextService.getCurrentUserId();
+        return pacienteRepository.findByNutriologoId(idNutriologoLogueado, pageable)
+                .map(usuarioMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UsuarioResponseDTO buscarPacienteAsignado(Long idPaciente) {
+        Long idNutriologoLogueado = userContextService.getCurrentUserId();
+        return pacienteRepository.findById(idPaciente)
+                .map(paciente -> {
+                    if (!paciente.getNutriologo().getId().equals(idNutriologoLogueado)) {
+                        throw new AccessDeniedException("No tienes permiso para ver este paciente.");
+                    }
+                    return usuarioMapper.toResponseDto(paciente);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el paciente con el id: " + idPaciente));
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO actualizarPacienteAsignado(Long idPaciente, PacienteRequestDTO pacienteDTO) {
+        Long idNutriologoLogueado = userContextService.getCurrentUserId();
+        return pacienteRepository.findById(idPaciente)
+                .map(paciente -> {
+                    if (!paciente.getNutriologo().getId().equals(idNutriologoLogueado)) {
+                        throw new AccessDeniedException("No tienes permiso para actualizar este paciente.");
+                    }
+                    // No se puede cambiar el nutriologoId ni el rol desde este método
+                    return usuarioService.actualizarUsuario(idPaciente, pacienteDTO);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el paciente con el id: " + idPaciente));
+    }
+
+    @Override
+    @Transactional
+    public void eliminarPacienteAsignado(Long idPaciente) {
+        Long idNutriologoLogueado = userContextService.getCurrentUserId();
+        pacienteRepository.findById(idPaciente)
+                .ifPresent(paciente -> {
+                    if (!paciente.getNutriologo().getId().equals(idNutriologoLogueado)) {
+                        throw new AccessDeniedException("No tienes permiso para eliminar este paciente.");
+                    }
+                    usuarioService.eliminarUsuario(idPaciente);
+                });
+    }
 }
