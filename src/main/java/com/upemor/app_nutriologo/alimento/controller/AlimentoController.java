@@ -36,13 +36,8 @@ public class AlimentoController {
         String correoUsuario = authentication.getName();
         AlimentoResponseDTO nuevoAlimento = alimentoService.registrarAlimento(requestDTO, imagen, correoUsuario);
 
-        ApiResponse<AlimentoResponseDTO> response = ApiResponse.<AlimentoResponseDTO>builder()
-                .estatus(HttpStatus.CREATED.value())
-                .mensaje("Alimento registrado exitosamente")
-                .datos(nuevoAlimento)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        ApiResponse<AlimentoResponseDTO> response = ApiResponse.created(nuevoAlimento, "Alimento registrado exitosamente");
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -50,12 +45,7 @@ public class AlimentoController {
     public ResponseEntity<ApiResponse<Page<AlimentoResponseDTO>>> listarAlimentos(Pageable pageable) {
         Page<AlimentoResponseDTO> alimentos = alimentoService.listarAlimentos(pageable);
 
-        ApiResponse<Page<AlimentoResponseDTO>> response = ApiResponse.<Page<AlimentoResponseDTO>>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Listado de alimentos")
-                .datos(alimentos)
-                .build();
-
+        ApiResponse<Page<AlimentoResponseDTO>> response = ApiResponse.success(alimentos, "Listado de alimentos");
         return ResponseEntity.ok(response);
     }
 
@@ -64,12 +54,7 @@ public class AlimentoController {
     public ResponseEntity<ApiResponse<List<AlimentoResponseDTO>>> buscarPorCategoria(@PathVariable String categoria) {
         List<AlimentoResponseDTO> alimentos = alimentoService.buscarPorCategoria(categoria);
 
-        ApiResponse<List<AlimentoResponseDTO>> response = ApiResponse.<List<AlimentoResponseDTO>>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Alimentos encontrados en la categoría: " + categoria)
-                .datos(alimentos)
-                .build();
-
+        ApiResponse<List<AlimentoResponseDTO>> response = ApiResponse.success(alimentos, "Alimentos encontrados en la categoría: " + categoria);
         return ResponseEntity.ok(response);
     }
 
@@ -78,12 +63,7 @@ public class AlimentoController {
     public ResponseEntity<ApiResponse<AlimentoResponseDTO>> buscarPorId(@PathVariable Long id) {
         AlimentoResponseDTO alimento = alimentoService.buscarPorId(id);
 
-        ApiResponse<AlimentoResponseDTO> response = ApiResponse.<AlimentoResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Alimento encontrado")
-                .datos(alimento)
-                .build();
-
+        ApiResponse<AlimentoResponseDTO> response = ApiResponse.success(alimento, "Alimento encontrado");
         return ResponseEntity.ok(response);
     }
 
@@ -96,12 +76,7 @@ public class AlimentoController {
 
         AlimentoResponseDTO alimentoActualizado = alimentoService.actualizarAlimento(id, requestDTO, imagen);
 
-        ApiResponse<AlimentoResponseDTO> response = ApiResponse.<AlimentoResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Alimento actualizado exitosamente")
-                .datos(alimentoActualizado)
-                .build();
-
+        ApiResponse<AlimentoResponseDTO> response = ApiResponse.success(alimentoActualizado, "Alimento actualizado exitosamente");
         return ResponseEntity.ok(response);
     }
 
@@ -110,11 +85,7 @@ public class AlimentoController {
     public ResponseEntity<ApiResponse<Void>> eliminarAlimento(@PathVariable Long id) {
         alimentoService.eliminarAlimento(id);
 
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .estatus(HttpStatus.NO_CONTENT.value())
-                .mensaje("Alimento eliminado exitosamente")
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        ApiResponse<Void> response = ApiResponse.noContent("Alimento eliminado exitosamente");
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 }

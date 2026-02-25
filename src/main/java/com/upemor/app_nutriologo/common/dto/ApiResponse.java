@@ -1,21 +1,41 @@
 package com.upemor.app_nutriologo.common.dto;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL) // No incluye campos nulos en el JSON
 public class ApiResponse<T> {
 
+    private int estatus;
     private String mensaje;
-    private int  estatus;
-    private T datos = null;
-    private final LocalDateTime timestamp = LocalDateTime.now();
+    private T datos;
 
+    // --- MÉTODOS ESTÁTICOS DE AYUDA ---
+
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return ApiResponse.<T>builder()
+                .estatus(HttpStatus.OK.value())
+                .mensaje(message)
+                .datos(data)
+                .build();
+    }
+
+    public static <T> ApiResponse<T> created(T data, String message) {
+        return ApiResponse.<T>builder()
+                .estatus(HttpStatus.CREATED.value())
+                .mensaje(message)
+                .datos(data)
+                .build();
+    }
+
+    public static ApiResponse<Void> noContent(String message) {
+        return ApiResponse.<Void>builder()
+                .estatus(HttpStatus.NO_CONTENT.value())
+                .mensaje(message)
+                .build();
+    }
 }
