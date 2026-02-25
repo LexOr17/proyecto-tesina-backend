@@ -9,9 +9,13 @@ import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import com.upemor.app_nutriologo.usuario.mapper.UsuarioMapper;
 import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -29,11 +33,23 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioResponseDTO guardarUsuario(UsuarioRequestDTO usuarioRequestDTO) {
+
         if (usuarioRepository.existsByCorreo(usuarioRequestDTO.getCorreo())) {
             throw new DuplicateResourceException("El correo " + usuarioRequestDTO.getCorreo() + " ya está en uso.");
         }
 
+        if (usuarioRepository.existsByTelefono(usuarioRequestDTO.getTelefono())) {
+            throw new DuplicateResourceException("El teléfono " + usuarioRequestDTO.getTelefono() + " ya está en uso.");
+        }
+
         Usuario entidad = usuarioMapper.toEntity(usuarioRequestDTO);
+
+//        // Lógica para asignar nutriólogo si el ID está presente en el DTO
+//        if (usuarioRequestDTO.getNutriologoId() != null) {
+//            Usuario nutriologo = usuarioRepository.findById(usuarioRequestDTO.getNutriologoId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("No se encontró el nutriólogo con id: " + usuarioRequestDTO.getNutriologoId()));
+//            entidad.setNutriologo(nutriologo);
+//        }
 
         String contrasenaGenerada = generarContrasena();
         entidad.setContrasena(passwordEncoder.encode(contrasenaGenerada));
@@ -53,11 +69,17 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDTO> listarUsuarios() {
-        return usuarioRepository.findAll()
-                .stream()
+    public Page<UsuarioResponseDTO> listarUsuarios(Pageable pageable) {
+        return usuarioRepository.findAll(pageable)
+                .map(usuarioMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UsuarioResponseDTO buscarUsuarioPorId(Long id) {
+        return usuarioRepository.findById(id)
                 .map(usuarioMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con el id: " + id));
     }
 
     @Override

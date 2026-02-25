@@ -6,11 +6,12 @@ import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping("/registro")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> crearUsuario(@Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
         UsuarioResponseDTO nuevoUsuario = usuarioService.guardarUsuario(usuarioRequestDTO);
 
@@ -33,13 +35,26 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UsuarioResponseDTO>>> listarUsuarios() {
-        List<UsuarioResponseDTO> usuarios = usuarioService.listarUsuarios();
+    public ResponseEntity<ApiResponse<Page<UsuarioResponseDTO>>> listarUsuarios(Pageable pageable) {
+        Page<UsuarioResponseDTO> usuarios = usuarioService.listarUsuarios(pageable);
 
-        ApiResponse<List<UsuarioResponseDTO>> response = ApiResponse.<List<UsuarioResponseDTO>>builder()
+        ApiResponse<Page<UsuarioResponseDTO>> response = ApiResponse.<Page<UsuarioResponseDTO>>builder()
                 .estatus(HttpStatus.OK.value())
                 .mensaje("Listado de usuarios")
                 .datos(usuarios)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<UsuarioResponseDTO>> obtenerUsuarioPorId(@PathVariable Long id) {
+        UsuarioResponseDTO usuario = usuarioService.buscarUsuarioPorId(id);
+
+        ApiResponse<UsuarioResponseDTO> response = ApiResponse.<UsuarioResponseDTO>builder()
+                .estatus(HttpStatus.OK.value())
+                .mensaje("Usuario encontrado")
+                .datos(usuario)
                 .build();
 
         return ResponseEntity.ok(response);
