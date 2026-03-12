@@ -26,7 +26,7 @@
 //            admin.setNombre("Admin");
 //            admin.setApellidoPaterno("Principal");
 //            admin.setCorreo("admin@nutriologo.com");
-//            admin.setContrasena(passwordEncoder.encode("Admin123"));
+//            admin.setPassword(passwordEncoder.encode("Admin123"));
 //            admin.setRol(Rol.ADMINISTRADOR);
 //            admin.setGenero(Genero.MASCULINO);
 //            admin.setFechaNacimiento(LocalDate.of(1990, 1, 1));

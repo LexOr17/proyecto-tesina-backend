@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.nutriologo.entity;
 
+import com.upemor.app_nutriologo.citas.entity.Cita;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import jakarta.persistence.*;
@@ -25,4 +26,7 @@ public class Nutriologo extends Usuario {
 
     @OneToMany(mappedBy = "nutriologo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Paciente> pacientes;
+
+    @OneToMany(mappedBy = "nutriologo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Cita> citas;
 }

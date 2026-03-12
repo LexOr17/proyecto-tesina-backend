@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.security;
 
+import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -38,8 +39,12 @@ public class JwtUtils {
                 .getAuthority()
                 .replace("ROLE_", "");
 
+        Usuario usuario = ((AuthUser) userDetails).getUsuario();
+
         return Jwts.builder()
                 .claim("rol", rol) // 👈 IMPORTANTE
+                // .claim("nombre", usuario.getNombre())
+                // .claim("apellido", usuario.getApellidoPaterno())
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLISEC))

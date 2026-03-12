@@ -1,6 +1,7 @@
 package com.upemor.app_nutriologo.usuario.controller;
 
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
+import com.upemor.app_nutriologo.usuario.dto.UsuarioNombreDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.service.UsuarioService;
@@ -55,6 +56,19 @@ public class UsuarioController {
                 .estatus(HttpStatus.OK.value())
                 .mensaje("Usuario encontrado")
                 .datos(usuario)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/nombre")
+    public ResponseEntity<ApiResponse<UsuarioNombreDTO>> obtenerNombreUsuarioPorId(@PathVariable Long id) {
+        UsuarioNombreDTO usuarioNombre = usuarioService.obtenerNombreUsuarioPorId(id);
+
+        ApiResponse<UsuarioNombreDTO> response = ApiResponse.<UsuarioNombreDTO>builder()
+                .estatus(HttpStatus.OK.value())
+                .mensaje("Nombre de usuario encontrado")
+                .datos(usuarioNombre)
                 .build();
 
         return ResponseEntity.ok(response);

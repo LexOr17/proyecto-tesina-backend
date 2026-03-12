@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.usuario.service;
 
+import com.upemor.app_nutriologo.usuario.dto.UsuarioNombreDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,8 @@ public interface UsuarioService {
     Page<UsuarioResponseDTO> listarUsuarios(Pageable pageable);
 
     UsuarioResponseDTO buscarUsuarioPorId(Long id);
+    
+    UsuarioNombreDTO obtenerNombreUsuarioPorId(Long id);
 
     UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO);
 

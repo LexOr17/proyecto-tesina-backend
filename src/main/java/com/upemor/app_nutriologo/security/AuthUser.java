@@ -25,7 +25,7 @@ public class AuthUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return usuario.getContrasena();
+        return usuario.getPassword();
     }
 
     @Override

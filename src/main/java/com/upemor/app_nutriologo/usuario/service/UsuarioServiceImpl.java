@@ -3,6 +3,7 @@ package com.upemor.app_nutriologo.usuario.service;
 import com.upemor.app_nutriologo.correo.service.EmailService;
 import com.upemor.app_nutriologo.exceptions.DuplicateResourceException;
 import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.usuario.dto.UsuarioNombreDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
@@ -12,8 +13,8 @@ import com.upemor.app_nutriologo.utils.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -40,7 +41,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario entidad = usuarioMapper.toEntity(usuarioRequestDTO);
 
         String contrasenaGenerada = PasswordGenerator.generarContrasena();
-        entidad.setContrasena(passwordEncoder.encode(contrasenaGenerada));
+        entidad.setPassword(passwordEncoder.encode(contrasenaGenerada));
 
         Usuario guardado = usuarioRepository.save(entidad);
 
@@ -68,6 +69,19 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.findById(id)
                 .map(usuarioMapper::toResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con el id: " + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UsuarioNombreDTO obtenerNombreUsuarioPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con el id: " + id));
+        
+        return UsuarioNombreDTO.builder()
+                .nombre(usuario.getNombre())
+                .apellidoPaterno(usuario.getApellidoPaterno())
+                .apellidoMaterno(usuario.getApellidoMaterno())
+                .build();
     }
 
     @Override

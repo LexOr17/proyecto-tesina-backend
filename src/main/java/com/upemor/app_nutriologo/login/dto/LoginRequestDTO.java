@@ -15,6 +15,6 @@ public class LoginRequestDTO {
 
     @Size(min = 8, max = 32)
     @NotBlank
-    private String contrasena;
+    private String password;
 
 }

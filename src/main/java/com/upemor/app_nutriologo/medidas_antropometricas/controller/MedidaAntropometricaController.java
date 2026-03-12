@@ -27,14 +27,8 @@ public class MedidaAntropometricaController {
             @Valid @RequestBody MedidaAntropometricaRequestDTO requestDTO) {
 
         MedidaAntropometricaResponseDTO medida = medidaService.registrarMedida(pacienteId, requestDTO);
-
-        ApiResponse<MedidaAntropometricaResponseDTO> response = ApiResponse.<MedidaAntropometricaResponseDTO>builder()
-                .estatus(HttpStatus.CREATED.value())
-                .mensaje("Medida antropométrica registrada exitosamente")
-                .datos(medida)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        ApiResponse<MedidaAntropometricaResponseDTO> response = ApiResponse.created(medida, "Medida antropométrica registrada exitosamente");
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/historial/{pacienteId}")
@@ -43,13 +37,7 @@ public class MedidaAntropometricaController {
             @PathVariable Long pacienteId) {
 
         List<MedidaAntropometricaResponseDTO> historial = medidaService.obtenerHistorialPorPaciente(pacienteId);
-
-        ApiResponse<List<MedidaAntropometricaResponseDTO>> response = ApiResponse.<List<MedidaAntropometricaResponseDTO>>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Historial de medidas obtenido exitosamente")
-                .datos(historial)
-                .build();
-
+        ApiResponse<List<MedidaAntropometricaResponseDTO>> response = ApiResponse.success(historial, "Historial de medidas obtenido exitosamente");
         return ResponseEntity.ok(response);
     }
 
@@ -59,13 +47,7 @@ public class MedidaAntropometricaController {
             @PathVariable Long pacienteId) {
 
         MedidaAntropometricaResponseDTO ultimaMedida = medidaService.obtenerUltimaMedida(pacienteId);
-
-        ApiResponse<MedidaAntropometricaResponseDTO> response = ApiResponse.<MedidaAntropometricaResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Última medida obtenida exitosamente")
-                .datos(ultimaMedida)
-                .build();
-
+        ApiResponse<MedidaAntropometricaResponseDTO> response = ApiResponse.success(ultimaMedida, "Última medida obtenida exitosamente");
         return ResponseEntity.ok(response);
     }
 
@@ -76,13 +58,7 @@ public class MedidaAntropometricaController {
             @Valid @RequestBody MedidaAntropometricaRequestDTO requestDTO) {
 
         MedidaAntropometricaResponseDTO medidaActualizada = medidaService.actualizarMedida(medidaId, requestDTO);
-
-        ApiResponse<MedidaAntropometricaResponseDTO> response = ApiResponse.<MedidaAntropometricaResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Medida antropométrica actualizada exitosamente")
-                .datos(medidaActualizada)
-                .build();
-
+        ApiResponse<MedidaAntropometricaResponseDTO> response = ApiResponse.success(medidaActualizada, "Medida antropométrica actualizada exitosamente");
         return ResponseEntity.ok(response);
     }
 
@@ -91,11 +67,9 @@ public class MedidaAntropometricaController {
     public ResponseEntity<ApiResponse<Void>> eliminarMedida(@PathVariable Long medidaId) {
         medidaService.eliminarMedida(medidaId);
 
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .estatus(HttpStatus.NO_CONTENT.value())
-                .mensaje("Medida eliminada exitosamente")
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        // Para DELETE, es común devolver 204 No Content sin cuerpo de respuesta.
+        // Si se quiere devolver un mensaje, es mejor usar 200 OK.
+        ApiResponse<Void> response = ApiResponse.success(null, "Medida eliminada exitosamente");
+        return ResponseEntity.ok(response);
     }
 }

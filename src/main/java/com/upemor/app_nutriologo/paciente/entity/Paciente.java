@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.paciente.entity;
 
+import com.upemor.app_nutriologo.citas.entity.Cita;
 import com.upemor.app_nutriologo.medidas_antropometricas.entity.MedidaAntropometrica;
 import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
@@ -27,4 +28,7 @@ public class Paciente extends Usuario {
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedidaAntropometrica> medidasAntropometricas;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Cita> citas;
 }

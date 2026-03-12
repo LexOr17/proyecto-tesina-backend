@@ -3,19 +3,20 @@ package com.upemor.app_nutriologo.usuario.entity;
 import com.upemor.app_nutriologo.usuario.enums.Genero;
 import com.upemor.app_nutriologo.usuario.enums.Rol;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
-@Entity
+@Getter
+@Setter
+@ToString
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Table(name = "usuarios")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Usuario {
@@ -44,7 +45,7 @@ public abstract class Usuario {
     private String correo;
 
     @Column(nullable = false)
-    private String contrasena;
+    private String password;
 
     @Column(nullable = false, unique = true)
     private String telefono;
@@ -53,4 +54,22 @@ public abstract class Usuario {
     private Rol rol;
 
     private LocalDateTime fechaRegistro;
+
+    @PrePersist
+    public void prePersist() {
+        fechaRegistro = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(id, usuario.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

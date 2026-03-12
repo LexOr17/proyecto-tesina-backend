@@ -32,18 +32,23 @@ public class LoginServiceImpl implements LoginService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getCorreo(),
-                        request.getContrasena()
+                        request.getPassword()
                 )
         );
 
         AuthUser userDetails = (AuthUser) authentication.getPrincipal();
+        Usuario usuario = userDetails.getUsuario();
 
         String token = jwtUtils.generateToken(userDetails);
 
-        return new LoginResponseDTO(
-                token,
-                userDetails.getUsuario().getRol(),
-                "8 horas");
+        return LoginResponseDTO.builder()
+                .token(token)
+                .rol(usuario.getRol())
+                .expirationTime("8 horas")
+                .nombre(usuario.getNombre())
+                .apellidos(usuario.getApellidoPaterno() + " " + usuario.getApellidoMaterno())
+                .id(String.valueOf(usuario.getId()))
+                .build();
     }
 
     @Override
@@ -52,7 +57,7 @@ public class LoginServiceImpl implements LoginService {
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró un usuario con el correo electrónico proporcionado"));
 
         String newPassword = PasswordGenerator.generarContrasena();
-        usuario.setContrasena(passwordEncoder.encode(newPassword));
+        usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioRepository.save(usuario);
 
         String emailContent = "Hola " + usuario.getNombre() + ",<br><br>" +
