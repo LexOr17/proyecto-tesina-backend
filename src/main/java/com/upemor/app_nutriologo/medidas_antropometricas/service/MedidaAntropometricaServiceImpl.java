@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.medidas_antropometricas.service;
 
-import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.medidas_antropometricas.dto.MedidaAntropometricaRequestDTO;
 import com.upemor.app_nutriologo.medidas_antropometricas.dto.MedidaAntropometricaResponseDTO;
 import com.upemor.app_nutriologo.medidas_antropometricas.entity.MedidaAntropometrica;

@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.common.service;
 
-import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;

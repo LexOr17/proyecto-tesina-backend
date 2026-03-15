@@ -1,4 +1,4 @@
-package com.upemor.app_nutriologo.exceptions;
+package com.upemor.app_nutriologo.common.exceptions;
 
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
 import jakarta.servlet.ServletException;

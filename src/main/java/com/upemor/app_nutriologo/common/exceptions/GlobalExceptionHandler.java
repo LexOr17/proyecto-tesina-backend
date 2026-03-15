@@ -1,4 +1,4 @@
-package com.upemor.app_nutriologo.exceptions;
+package com.upemor.app_nutriologo.common.exceptions;
 
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(MethodArgumentNotValidException e) {
         Map<String, String> errores = new HashMap<>();
@@ -47,6 +47,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ScheduleConflictException.class)
+    public ResponseEntity<ApiResponse<Object>> handleScheduleConflictException(ScheduleConflictException e) {
+        ApiResponse<Object> response = ApiResponse.builder()
+                .estatus(HttpStatus.CONFLICT.value())
+                .mensaje(e.getMessage())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception e) {
         ApiResponse<Object> response = ApiResponse.builder()
@@ -55,4 +64,6 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
 }

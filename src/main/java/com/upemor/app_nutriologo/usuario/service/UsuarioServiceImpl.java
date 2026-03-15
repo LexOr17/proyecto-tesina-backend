@@ -1,8 +1,8 @@
 package com.upemor.app_nutriologo.usuario.service;
 
 import com.upemor.app_nutriologo.correo.service.EmailService;
-import com.upemor.app_nutriologo.exceptions.DuplicateResourceException;
-import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.DuplicateResourceException;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioNombreDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioRequestDTO;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;

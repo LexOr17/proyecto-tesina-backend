@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.nutriologo.service;
 
-import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.nutriologo.dto.NutriologoSelectorDTO;
 import com.upemor.app_nutriologo.nutriologo.repository.NutriologoRepository;
 import com.upemor.app_nutriologo.paciente.dto.PacienteRequestDTO;

@@ -86,12 +86,8 @@ public class NutriologoController {
 
     @DeleteMapping("/pacientes/{idPaciente}")
     @PreAuthorize("hasRole('NUTRIOLOGO')")
-    public ResponseEntity<ApiResponse<Void>> eliminarPacienteAsignado(@PathVariable Long idPaciente) {
+    public ResponseEntity<Void> eliminarPacienteAsignado(@PathVariable Long idPaciente) {
         serviceNutriologo.eliminarPacienteAsignado(idPaciente);
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .estatus(HttpStatus.NO_CONTENT.value())
-                .mensaje("Paciente eliminado exitosamente")
-                .build();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.noContent().build();
     }
 }

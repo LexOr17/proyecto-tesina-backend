@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.security;
 
-import com.upemor.app_nutriologo.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

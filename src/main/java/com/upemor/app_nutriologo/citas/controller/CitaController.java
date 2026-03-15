@@ -1,6 +1,8 @@
 package com.upemor.app_nutriologo.citas.controller;
 
-import com.upemor.app_nutriologo.citas.dto.*;
+import com.upemor.app_nutriologo.citas.dto.CitaEstadoUpdateDTO;
+import com.upemor.app_nutriologo.citas.dto.CitaRequestDTO;
+import com.upemor.app_nutriologo.citas.dto.CitaResponseDTO;
 import com.upemor.app_nutriologo.citas.service.CitaService;
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -67,38 +69,10 @@ public class CitaController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/solicitar/{pacienteId}")
-    public ResponseEntity<ApiResponse<CitaResponseDTO>> solicitarCita(@PathVariable Long pacienteId, @Valid @RequestBody CitaSolicitudDTO solicitudDTO) {
-        CitaResponseDTO citaSolicitada = citaService.solicitarCita(pacienteId, solicitudDTO);
-        ApiResponse<CitaResponseDTO> response = ApiResponse.created(citaSolicitada, "Cita solicitada exitosamente. Esperando confirmación del nutriólogo.");
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @PatchMapping("/{citaId}/cancelar")
-    public ResponseEntity<ApiResponse<CitaResponseDTO>> cancelarCita(@PathVariable Long citaId) {
-        CitaResponseDTO citaCancelada = citaService.cancelarCita(citaId);
-        ApiResponse<CitaResponseDTO> response = ApiResponse.success(citaCancelada, "Cita cancelada exitosamente.");
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{citaId}/solicitar-cancelacion")
-    public ResponseEntity<ApiResponse<CitaResponseDTO>> solicitarCancelacionCita(@PathVariable Long citaId, @Valid @RequestBody CitaCancelacionRequestDTO cancelacionRequestDTO) {
-        CitaResponseDTO citaCancelada = citaService.solicitarCancelacionCita(citaId, cancelacionRequestDTO);
-        ApiResponse<CitaResponseDTO> response = ApiResponse.success(citaCancelada, "Solicitud de cancelación de cita enviada exitosamente.");
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{citaId}/reprogramar")
-    public ResponseEntity<ApiResponse<CitaResponseDTO>> reprogramarCita(@PathVariable Long citaId, @Valid @RequestBody CitaReprogramarDTO reprogramarDTO) {
-        CitaResponseDTO citaReprogramada = citaService.reprogramarCita(citaId, reprogramarDTO);
-        ApiResponse<CitaResponseDTO> response = ApiResponse.success(citaReprogramada, "Solicitud de reprogramación enviada exitosamente.");
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{citaId}/finalizar")
-    public ResponseEntity<ApiResponse<CitaResponseDTO>> finalizarCita(@PathVariable Long citaId, @Valid @RequestBody FinalizarCitaDTO finalizarCitaDTO) {
-        CitaResponseDTO citaFinalizada = citaService.finalizarCita(citaId, finalizarCitaDTO);
-        ApiResponse<CitaResponseDTO> response = ApiResponse.success(citaFinalizada, "Cita marcada como finalizada.");
+    @PatchMapping("/{citaId}/estado")
+    public ResponseEntity<ApiResponse<CitaResponseDTO>> actualizarEstadoCita(@PathVariable Long citaId, @Valid @RequestBody CitaEstadoUpdateDTO estadoUpdateDTO) {
+        CitaResponseDTO citaActualizada = citaService.actualizarEstadoCita(citaId, estadoUpdateDTO);
+        ApiResponse<CitaResponseDTO> response = ApiResponse.success(citaActualizada, "El estado de la cita ha sido actualizado a " + estadoUpdateDTO.getNuevoEstado());
         return ResponseEntity.ok(response);
     }
 }

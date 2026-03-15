@@ -1,11 +1,8 @@
 package com.upemor.app_nutriologo.citas.service;
 
-import com.upemor.app_nutriologo.citas.dto.CitaCancelacionRequestDTO;
-import com.upemor.app_nutriologo.citas.dto.CitaReprogramarDTO;
+import com.upemor.app_nutriologo.citas.dto.CitaEstadoUpdateDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaRequestDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaResponseDTO;
-import com.upemor.app_nutriologo.citas.dto.CitaSolicitudDTO;
-import com.upemor.app_nutriologo.citas.dto.FinalizarCitaDTO;
 
 import java.util.List;
 
@@ -18,10 +15,5 @@ public interface CitaService {
     List<CitaResponseDTO> obtenerCitasPorPacienteId(Long pacienteId);
     List<CitaResponseDTO> obtenerCitasPorNutriologoId(Long nutriologoId);
 
-    // Nuevos métodos
-    CitaResponseDTO solicitarCita(Long pacienteId, CitaSolicitudDTO solicitudDTO);
-    CitaResponseDTO cancelarCita(Long citaId);
-    CitaResponseDTO solicitarCancelacionCita(Long citaId, CitaCancelacionRequestDTO cancelacionRequestDTO);
-    CitaResponseDTO reprogramarCita(Long citaId, CitaReprogramarDTO reprogramarDTO);
-    CitaResponseDTO finalizarCita(Long citaId, FinalizarCitaDTO finalizarCitaDTO);
+    CitaResponseDTO actualizarEstadoCita(Long citaId, CitaEstadoUpdateDTO estadoUpdateDTO);
 }

@@ -24,7 +24,7 @@ public class Nutriologo extends Usuario {
     @Column(nullable = false, unique = true)
     private String cedulaProfesional;
 
-    @OneToMany(mappedBy = "nutriologo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "nutriologo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Paciente> pacientes;
 
     @OneToMany(mappedBy = "nutriologo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
