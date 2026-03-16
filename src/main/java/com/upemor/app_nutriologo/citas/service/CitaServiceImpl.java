@@ -138,8 +138,19 @@ public class CitaServiceImpl implements CitaService {
                 if (cita.getEstado() == Estado.SOLICITADA) {
                     validarDisponibilidadCita(cita.getNutriologo().getId(), cita.getFechaHoraInicio(), cita.getFechaHoraFin());
                     cita.setEstado(Estado.PROGRAMADA);
+                } else if (cita.getEstado() == Estado.REPROGRAMACION_SOLICITADA) {
+                    LocalDateTime nuevaFechaHoraInicio = cita.getFechaHoraReprogramacionSolicitada();
+                    Objects.requireNonNull(nuevaFechaHoraInicio, "No se puede aceptar una reprogramación sin una nueva fecha propuesta.");
+                    LocalDateTime nuevaFechaHoraFin = nuevaFechaHoraInicio.plusHours(1);
+
+                    validarDisponibilidadCita(cita.getNutriologo().getId(), nuevaFechaHoraInicio, nuevaFechaHoraFin);
+
+                    cita.setFechaHoraInicio(nuevaFechaHoraInicio);
+                    cita.setFechaHoraFin(nuevaFechaHoraFin);
+                    cita.setEstado(Estado.PROGRAMADA);
+                    cita.setFechaHoraReprogramacionSolicitada(null); // Limpiar el campo
                 } else {
-                    throw new IllegalStateException("Solo se puede aceptar una cita que ha sido solicitada.");
+                    throw new IllegalStateException("Solo se puede aceptar una cita que ha sido solicitada o reprogramada.");
                 }
                 break;
             case CANCELADA:
