@@ -37,7 +37,7 @@ public class SecurityFilter {
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/login/**", "/uploads/**").permitAll()
+                        .requestMatchers("/login/**", "/uploads/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

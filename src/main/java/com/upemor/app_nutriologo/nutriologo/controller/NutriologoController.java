@@ -60,7 +60,7 @@ public class NutriologoController {
     }
 
     @GetMapping("/pacientes/{idPaciente}")
-    @PreAuthorize("hasRole('NUTRIOLOGO')")
+//    @PreAuthorize("hasRole('NUTRIOLOGO')")
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> buscarPacienteAsignado(@PathVariable Long idPaciente) {
         UsuarioResponseDTO paciente = serviceNutriologo.buscarPacienteAsignado(idPaciente);
         ApiResponse<UsuarioResponseDTO> response = ApiResponse.<UsuarioResponseDTO>builder()

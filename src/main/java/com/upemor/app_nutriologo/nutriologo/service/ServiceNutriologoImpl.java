@@ -56,10 +56,12 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
     @Override
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPacienteAsignado(Long idPaciente) {
-        Long idNutriologoLogueado = userContextService.getCurrentUserId();
+        Long currentUserId = userContextService.getCurrentUserId();
         return pacienteRepository.findById(idPaciente)
                 .map(paciente -> {
-                    if (!paciente.getNutriologo().getId().equals(idNutriologoLogueado)) {
+                    // El nutriólogo asignado al paciente puede ver los datos del paciente.
+                    // El propio paciente puede ver sus propios datos.
+                    if (!paciente.getNutriologo().getId().equals(currentUserId) && !paciente.getId().equals(currentUserId)) {
                         throw new AccessDeniedException("No tienes permiso para ver este paciente.");
                     }
                     return usuarioMapper.toResponseDto(paciente);
