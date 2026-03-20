@@ -1,7 +1,7 @@
 package com.upemor.app_nutriologo.chat.controller;
 
 import com.upemor.app_nutriologo.chat.dto.ChatMessageDTO;
-import com.upemor.app_nutriologo.chat.model.ChatMessage;
+import com.upemor.app_nutriologo.chat.entity.ChatMessage;
 import com.upemor.app_nutriologo.chat.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

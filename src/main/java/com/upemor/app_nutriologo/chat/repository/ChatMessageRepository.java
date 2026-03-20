@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.chat.repository;
 
-import com.upemor.app_nutriologo.chat.model.ChatMessage;
+import com.upemor.app_nutriologo.chat.entity.ChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

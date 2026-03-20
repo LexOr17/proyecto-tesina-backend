@@ -1,8 +1,9 @@
 package com.upemor.app_nutriologo.chat.service;
 
 import com.upemor.app_nutriologo.chat.dto.ChatMessageDTO;
-import com.upemor.app_nutriologo.chat.model.ChatMessage;
+import com.upemor.app_nutriologo.chat.entity.ChatMessage;
 import com.upemor.app_nutriologo.chat.repository.ChatMessageRepository;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,14 @@ public class ChatService {
 
     public ChatMessage save(ChatMessageDTO chatMessageDTO) {
         Usuario sender = usuarioRepository.findById(chatMessageDTO.getSenderId())
-                .orElseThrow(() -> new RuntimeException("Sender not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Usuario remitente no encontrado con ID: " + chatMessageDTO.getSenderId()
+                ));
+
         Usuario recipient = usuarioRepository.findById(chatMessageDTO.getRecipientId())
-                .orElseThrow(() -> new RuntimeException("Recipient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Usuario destinatario no encontrado con ID: " + chatMessageDTO.getRecipientId()
+                ));
 
         String chatId = getChatId(sender.getId(), recipient.getId());
 

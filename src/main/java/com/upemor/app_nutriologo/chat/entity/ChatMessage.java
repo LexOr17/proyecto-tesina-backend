@@ -1,4 +1,4 @@
-package com.upemor.app_nutriologo.chat.model;
+package com.upemor.app_nutriologo.chat.entity;
 
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import jakarta.persistence.*;

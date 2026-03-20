@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.login.service;
 
+import com.upemor.app_nutriologo.common.exceptions.UnauthorizedException;
 import com.upemor.app_nutriologo.correo.service.EmailService;
 import com.upemor.app_nutriologo.login.dto.LoginRequestDTO;
 import com.upemor.app_nutriologo.login.dto.LoginResponseDTO;
