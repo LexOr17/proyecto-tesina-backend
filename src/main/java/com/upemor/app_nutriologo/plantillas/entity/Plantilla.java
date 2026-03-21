@@ -1,58 +1,74 @@
 package com.upemor.app_nutriologo.plantillas.entity;
 
-import com.upemor.app_nutriologo.alimento.entity.Alimento;
 import com.upemor.app_nutriologo.plantillas.enums.TipoComida;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@ToString(exclude = {"usuario", "alimentos"})
-@EqualsAndHashCode(of = "id")
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "plantillas")
 public class Plantilla {
 
     @Id
+    @ToString.Include
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Include
     @Column(nullable = false, length = 100)
     private String nombre;
-    
+
+    @ToString.Include
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoComida tipoComida; 
+    private TipoComida tipoComida;
 
+    @ToString.Include
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDate fechaCreacion;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "plantilla_alimentos",
-        joinColumns = @JoinColumn(name = "plantilla_id"),
-        inverseJoinColumns = @JoinColumn(name = "alimento_id")
-    )
-    private List<Alimento> alimentos = new ArrayList<>();
+    // Relación hacia la tabla intermedia
+    @Builder.Default
+    @OneToMany(mappedBy = "plantilla", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlantillaAlimento> detalles = new ArrayList<>();
 
+    // ==========================================
+    // Métodos Helper para sincronizar la relación
+    // ==========================================
+
+    /**
+     * Agrega un alimento a la plantilla con una cantidad específica.
+     */
+    public void addAlimento(com.upemor.app_nutriologo.alimento.entity.Alimento alimento, BigDecimal cantidad) {
+        PlantillaAlimento detalle = PlantillaAlimento.builder()
+                .plantilla(this)
+                .alimento(alimento)
+                .cantidad(cantidad)
+                .build();
+        this.detalles.add(detalle);
+    }
+
+    public void removeAlimento(PlantillaAlimento detalle) {
+        this.detalles.remove(detalle);
+        detalle.setPlantilla(null);
+    }
 }

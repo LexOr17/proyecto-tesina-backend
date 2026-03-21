@@ -5,14 +5,13 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
-public class PlanAlimenticioResponseDTO {
-    private Long id;
-    private String nombre;
-    private LocalDate fechaInicio;
-    private Integer duracionDias;
-    private LocalDate fechaCreacion;
-    private Long pacienteId;
-    private Long nutriologoId;
-    private List<ComidaProgramadaResponseDTO> comidasProgramadas;
-}
+public record PlanAlimenticioResponseDTO(
+        Long id,
+        String nombre,
+        LocalDate fechaInicio,
+        Integer duracionDias,
+        LocalDate fechaCreacion,
+        Long pacienteId,
+        Long nutriologoId,
+        List<ComidaProgramadaResponseDTO> comidasProgramadas
+) {}

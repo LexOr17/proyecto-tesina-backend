@@ -11,6 +11,7 @@ import com.upemor.app_nutriologo.plan_alimenticio.mapper.PlanAlimenticioMapper;
 import com.upemor.app_nutriologo.plan_alimenticio.repository.PlanAlimenticioRepository;
 import com.upemor.app_nutriologo.plantillas.entity.Plantilla;
 import com.upemor.app_nutriologo.plantillas.repository.PlantillaRepository;
+import com.upemor.app_nutriologo.security.UserContextService;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,38 +20,44 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PlanAlimenticioServiceImpl {
+public class PlanAlimenticioServiceImpl implements PlanAlimenticioService {
 
     private final PlanAlimenticioRepository planRepository;
     private final UsuarioRepository usuarioRepository;
     private final PlantillaRepository plantillaRepository;
     private final PlanAlimenticioMapper mapper;
+    private final UserContextService userContextService; //
 
+    @Override
     @Transactional
     public PlanAlimenticioResponseDTO crearPlan(PlanAlimenticioRequestDTO dto) {
-        // Validar que no exista un plan activo para el paciente
-        long planesActivos = planRepository.existsPlanActivoByPacienteId(dto.getPacienteId(), LocalDate.now());
-        if (planesActivos > 0) {
-            throw new InvalidOperationException("El paciente ya cuenta con un plan alimenticio activo que aún no ha concluido.");
+        // 1. Obtener Nutriólogo desde el Token (Seguridad)
+        Long nutriologoId = userContextService.getCurrentUserId();
+
+        // 2. Validar plan activo
+        if (planRepository.existsPlanActivo(dto.pacienteId(), LocalDate.now())) {
+            throw new InvalidOperationException("El paciente ya cuenta con un plan activo.");
         }
 
-        Usuario paciente = usuarioRepository.findById(dto.getPacienteId())
+        // 3. Buscar entidades (Usando Record syntax: dto.pacienteId())
+        Usuario paciente = usuarioRepository.findById(dto.pacienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
-        Usuario nutriologo = usuarioRepository.findById(dto.getNutriologoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Nutriólogo no encontrado"));
+        Usuario nutriologo = usuarioRepository.getReferenceById(nutriologoId);
 
+        // 4. Mapear y procesar
         PlanAlimenticio nuevoPlan = mapper.toEntity(dto);
         nuevoPlan.setPaciente(paciente);
         nuevoPlan.setNutriologo(nutriologo);
 
-        procesarComidas(dto.getComidas(), nuevoPlan);
+        procesarComidas(dto.comidas(), nuevoPlan);
 
-        PlanAlimenticio planGuardado = planRepository.save(nuevoPlan);
-        return mapper.toResponseDto(planGuardado);
+        return mapper.toResponseDto(planRepository.save(nuevoPlan));
     }
 
     @Transactional(readOnly = true)
@@ -67,19 +74,19 @@ public class PlanAlimenticioServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public PlanAlimenticioResponseDTO actualizarPlan(Long id, PlanAlimenticioRequestDTO dto) {
-
         PlanAlimenticio planExistente = planRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Plan no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Plan no encontrado"));
 
         mapper.updateEntityFromDto(dto, planExistente);
 
+        // Limpieza segura de la relación bidireccional
         planExistente.getComidasProgramadas().clear();
-        procesarComidas(dto.getComidas(), planExistente);
+        procesarComidas(dto.comidas(), planExistente);
 
-        PlanAlimenticio planGuardado = planRepository.save(planExistente);
-        return mapper.toResponseDto(planGuardado);
+        return mapper.toResponseDto(planRepository.save(planExistente));
     }
 
     @Transactional
@@ -91,13 +98,23 @@ public class PlanAlimenticioServiceImpl {
     }
 
     private void procesarComidas(List<ComidaProgramadaDTO> comidasDto, PlanAlimenticio plan) {
-        for (ComidaProgramadaDTO comidaDto : comidasDto) {
-            Plantilla plantilla = plantillaRepository.findById(comidaDto.getPlantillaId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Plantilla no encontrada con ID: " + comidaDto.getPlantillaId()));
+        // Extraer IDs únicos de plantillas
+        Set<Long> plantillaIds = comidasDto.stream()
+                .map(ComidaProgramadaDTO::plantillaId)
+                .collect(Collectors.toSet());
 
-            ComidaProgramada comida = mapper.toEntity(comidaDto);
+        // Buscar todas las plantillas de golpe (Optimización N+1)
+        Map<Long, Plantilla> plantillasMap = plantillaRepository.findAllById(plantillaIds).stream()
+                .collect(Collectors.toMap(Plantilla::getId, p -> p));
+
+        for (ComidaProgramadaDTO dto : comidasDto) {
+            Plantilla plantilla = plantillasMap.get(dto.plantillaId());
+            if (plantilla == null) {
+                throw new ResourceNotFoundException("Plantilla no encontrada: " + dto.plantillaId());
+            }
+
+            ComidaProgramada comida = mapper.toEntity(dto);
             comida.setPlantilla(plantilla);
-
             plan.addComidaProgramada(comida);
         }
     }

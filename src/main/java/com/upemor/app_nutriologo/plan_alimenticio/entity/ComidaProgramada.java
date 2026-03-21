@@ -7,39 +7,39 @@ import lombok.*;
 
 @Getter
 @Setter
-@ToString(exclude = {"planAlimenticio", "plantilla"})
-@EqualsAndHashCode(of = "id")
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "comidas_programadas")
 public class ComidaProgramada {
 
     @Id
+    @ToString.Include
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // A qué plan pertenece esta asignación (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_alimenticio_id", nullable = false)
     private PlanAlimenticio planAlimenticio;
 
-    // Qué comida (plantilla) le vas a dar (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plantilla_id", nullable = false)
     private Plantilla plantilla;
 
-    // Día específico del plan (Ej: 1, 2, 3...)
+    @ToString.Include
     @Column(nullable = false)
     private Integer diaPlan;
 
-    // Reutilizamos tu enum (Desayuno, Comida, Cena, etc.)
+    @ToString.Include
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoComida horario;
 
-    // Notas específicas para este día y hora en particular
+    @ToString.Include
     @Column(length = 500)
     private String observaciones;
 }

@@ -5,73 +5,67 @@ import com.upemor.app_nutriologo.plantillas.dto.PlantillaRequestDTO;
 import com.upemor.app_nutriologo.plantillas.dto.PlantillaResponseDTO;
 import com.upemor.app_nutriologo.plantillas.service.PlantillaService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/plantillas")
+@RequiredArgsConstructor
 public class PlantillaController {
 
     private final PlantillaService plantillaService;
 
-    public PlantillaController(PlantillaService plantillaService) {
-        this.plantillaService = plantillaService;
-    }
-
     @PostMapping
-    public ResponseEntity<ApiResponse<PlantillaResponseDTO>> createPlantilla(@Valid @RequestBody PlantillaRequestDTO requestDTO) {
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'ADMINISTADOR')") // Solo nutriólogos crean plantillas
+    public ResponseEntity<ApiResponse<PlantillaResponseDTO>> createPlantilla(
+            @Valid @RequestBody PlantillaRequestDTO requestDTO) {
+
         PlantillaResponseDTO createdPlantilla = plantillaService.crearPlantilla(requestDTO);
-        ApiResponse<PlantillaResponseDTO> response = ApiResponse.<PlantillaResponseDTO>builder()
-                .estatus(HttpStatus.CREATED.value())
-                .mensaje("Plantilla creada exitosamente")
-                .datos(createdPlantilla)
-                .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return new ResponseEntity<>(
+                ApiResponse.created(createdPlantilla, "Plantilla creada exitosamente"),
+                HttpStatus.CREATED
+        );
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PlantillaResponseDTO>>> getAllPlantillas(Pageable pageable) {
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE')") // Ambos pueden ver el catálogo
+    public ResponseEntity<ApiResponse<Page<PlantillaResponseDTO>>> getAllPlantillas(
+            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
+
         Page<PlantillaResponseDTO> plantillas = plantillaService.obtenerPlantillas(pageable);
-        ApiResponse<Page<PlantillaResponseDTO>> response = ApiResponse.<Page<PlantillaResponseDTO>>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Listado de plantillas paginado")
-                .datos(plantillas)
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(plantillas, "Listado de plantillas paginado obtenido"));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE')")
     public ResponseEntity<ApiResponse<PlantillaResponseDTO>> getPlantillaById(@PathVariable Long id) {
+
         PlantillaResponseDTO plantilla = plantillaService.buscarPlantillaPorId(id);
-        ApiResponse<PlantillaResponseDTO> response = ApiResponse.<PlantillaResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Plantilla encontrada")
-                .datos(plantilla)
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(plantilla, "Plantilla encontrada"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PlantillaResponseDTO>> updatePlantilla(@PathVariable Long id, @Valid @RequestBody PlantillaRequestDTO requestDTO) {
+    @PreAuthorize("hasRole('NUTRIOLOGO')") // Solo el autor/nutriólogo debería editar
+    public ResponseEntity<ApiResponse<PlantillaResponseDTO>> updatePlantilla(
+            @PathVariable Long id,
+            @Valid @RequestBody PlantillaRequestDTO requestDTO) {
+
         PlantillaResponseDTO updatedPlantilla = plantillaService.actualizarPlantilla(id, requestDTO);
-        ApiResponse<PlantillaResponseDTO> response = ApiResponse.<PlantillaResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Plantilla actualizada exitosamente")
-                .datos(updatedPlantilla)
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(updatedPlantilla, "Plantilla actualizada exitosamente"));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('NUTRIOLOGO')")
     public ResponseEntity<ApiResponse<Void>> deletePlantilla(@PathVariable Long id) {
+
         plantillaService.eliminarPlantilla(id);
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .estatus(HttpStatus.NO_CONTENT.value())
-                .mensaje("Plantilla eliminada exitosamente")
-                .build();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        // Usamos tu método noContent para estandarizar la respuesta de éxito
+        return ResponseEntity.ok(ApiResponse.noContent("Plantilla eliminada exitosamente"));
     }
 }

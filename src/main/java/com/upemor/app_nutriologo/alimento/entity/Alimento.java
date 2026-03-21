@@ -2,30 +2,34 @@ package com.upemor.app_nutriologo.alimento.entity;
 
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true) // Seguridad estándar
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "alimentos")
 public class Alimento {
 
     @Id
+    @ToString.Include
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Include
     @Column(nullable = false, unique = true, length = 100)
     private String nombre;
 
+    @ToString.Include
     @Column(nullable = false, length = 50)
     private String categoria;
 
@@ -44,6 +48,7 @@ public class Alimento {
     @Column(nullable = false, precision = 6, scale = 2)
     private BigDecimal porcionBase;
 
+    @ToString.Include
     @Column(nullable = false, length = 20)
     private String unidadPorcion;
 

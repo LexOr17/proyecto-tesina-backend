@@ -16,10 +16,10 @@ public interface PlanAlimenticioRepository extends JpaRepository<PlanAlimenticio
 
     List<PlanAlimenticio> findByNutriologoId(Long nutriologoId);
 
-    // Consulta nativa para verificar planes activos, más compatible con MySQL
-    @Query(value = "SELECT CASE WHEN COUNT(p.id) > 0 THEN 1 ELSE 0 END FROM planes_alimenticios p " +
-           "WHERE p.paciente_id = :pacienteId " +
-           "AND DATE_ADD(p.fecha_inicio, INTERVAL p.duracion_dias DAY) >= :fechaActual", 
-           nativeQuery = true)
-    long existsPlanActivoByPacienteId(@Param("pacienteId") Long pacienteId, @Param("fechaActual") LocalDate fechaActual);
+    // Versión JPQL: Más limpia y no depende de funciones específicas de MySQL
+    @Query("SELECT COUNT(p) > 0 FROM PlanAlimenticio p " +
+            "WHERE p.paciente.id = :pacienteId " +
+            "AND p.fechaInicio <= :fechaActual " +
+            "AND FUNCTION('DATE_ADD', p.fechaInicio, p.duracionDias, 'DAY') >= :fechaActual")
+    boolean existsPlanActivo(@Param("pacienteId") Long pacienteId, @Param("fechaActual") LocalDate fechaActual);
 }
