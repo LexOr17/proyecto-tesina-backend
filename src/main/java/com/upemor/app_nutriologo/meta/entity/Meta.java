@@ -3,31 +3,33 @@ package com.upemor.app_nutriologo.meta.entity;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "metas")
 public class Meta {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // Solo dejamos la restricción de la base de datos
     @Column(nullable = false)
     private String descripcion;
 
     @Column(nullable = false)
     private LocalDate fechaObjetivo;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean cumplida = false;
 

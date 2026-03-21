@@ -1,12 +1,16 @@
 package com.upemor.app_nutriologo.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Data
 @Builder
+@AllArgsConstructor // <-- Esto crea el constructor público con todos los argumentos
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL) // No incluye campos nulos en el JSON
 public class ApiResponse<T> {
 

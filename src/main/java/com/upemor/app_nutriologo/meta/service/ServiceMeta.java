@@ -9,7 +9,7 @@ public interface ServiceMeta {
 
     MetaResponseDTO crearMeta(MetaRequestDTO metaDTO);
 
-    Page<MetaResponseDTO> listarMetas(Pageable pageable);
+    Page<MetaResponseDTO> listarMetasPorPaciente(Long pacienteId, Pageable pageable);
 
     MetaResponseDTO buscarMeta(Integer id);
 
