@@ -4,6 +4,7 @@ import com.upemor.app_nutriologo.common.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -111,5 +112,18 @@ public class GlobalExceptionHandler {
                 .mensaje("Correo o contraseña incorrectos.")
                 .build();
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException e) {
+        log.warn("Acceso denegado: {}", e.getMessage());
+
+        ApiResponse<Object> response = ApiResponse.builder()
+                .estatus(HttpStatus.FORBIDDEN.value())
+                .mensaje(e.getMessage())
+                // .datos(null) // Opcional, ya que el builder suele dejarlo null por defecto
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }

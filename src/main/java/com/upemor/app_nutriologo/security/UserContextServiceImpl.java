@@ -4,8 +4,12 @@ import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,5 +35,16 @@ public class UserContextServiceImpl implements UserContextService {
         }
         
         return (AuthUser) authentication.getPrincipal();
+    }
+
+    public Set<String> getCurrentUserRoles() {
+        return getCurrentAuthUser().getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+    }
+
+    public boolean isAdmin() {
+        // Buscamos "ROLE_ADMINISTRADOR" porque tu AuthUser concatena "ROLE_" + "ADMINISTRADOR"
+        return getCurrentUserRoles().contains("ROLE_ADMINISTRADOR");
     }
 }

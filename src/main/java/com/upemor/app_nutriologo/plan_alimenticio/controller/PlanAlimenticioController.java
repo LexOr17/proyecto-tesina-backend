@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlanAlimenticioController {
 
-    // Cambiado de la implementación (...ServiceImpl) a la Interfaz
     private final PlanAlimenticioService planAlimenticioService;
 
     @PostMapping

@@ -22,7 +22,7 @@ public class PlantillaController {
     private final PlantillaService plantillaService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'ADMINISTADOR')") // Solo nutriólogos crean plantillas
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'ADMINISTRADOR')") // Solo nutriólogos crean plantillas
     public ResponseEntity<ApiResponse<PlantillaResponseDTO>> createPlantilla(
             @Valid @RequestBody PlantillaRequestDTO requestDTO) {
 
@@ -34,7 +34,7 @@ public class PlantillaController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE')") // Ambos pueden ver el catálogo
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE', 'ADMINISTRADOR')") // Ambos pueden ver el catálogo
     public ResponseEntity<ApiResponse<Page<PlantillaResponseDTO>>> getAllPlantillas(
             @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
 
@@ -43,7 +43,7 @@ public class PlantillaController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE')")
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE', 'ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<PlantillaResponseDTO>> getPlantillaById(@PathVariable Long id) {
 
         PlantillaResponseDTO plantilla = plantillaService.buscarPlantillaPorId(id);
@@ -51,7 +51,7 @@ public class PlantillaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('NUTRIOLOGO')") // Solo el autor/nutriólogo debería editar
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'ADMINISTRADOR')") // Solo el autor/nutriólogo debería editar
     public ResponseEntity<ApiResponse<PlantillaResponseDTO>> updatePlantilla(
             @PathVariable Long id,
             @Valid @RequestBody PlantillaRequestDTO requestDTO) {
@@ -61,7 +61,7 @@ public class PlantillaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('NUTRIOLOGO')")
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<Void>> deletePlantilla(@PathVariable Long id) {
 
         plantillaService.eliminarPlantilla(id);

@@ -27,3 +27,8 @@ email:
 
 file:
   upload-dir: ./uploads
+
+app:
+  diario:
+    max-dias-gracia: 0     # días de gracia para editar comidas
+    horas-gracia-extra: 12 # horas de gracia extra para editar comidas

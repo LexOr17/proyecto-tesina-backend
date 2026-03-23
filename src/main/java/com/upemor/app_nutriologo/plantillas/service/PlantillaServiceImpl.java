@@ -72,23 +72,37 @@ public class PlantillaServiceImpl implements PlantillaService {
     @Override
     @Transactional
     public PlantillaResponseDTO actualizarPlantilla(Long id, PlantillaRequestDTO requestDTO) {
+        // 1. Buscar la plantilla existente
         Plantilla plantillaExistente = plantillaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Plantilla no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Plantilla no encontrada con id: " + id));
 
-        if (!plantillaExistente.getUsuario().getId().equals(userContextService.getCurrentUserId())) {
-            throw new AccessDeniedException("No tienes permiso para editar esta plantilla.");
+        // 2. Obtener datos del usuario logueado desde el contexto
+        Long usuarioLogueadoId = userContextService.getCurrentUserId();
+        boolean esAdmin = userContextService.isAdmin();
+
+        // 3. VALIDACIÓN DE SEGURIDAD
+        // ¿Es el dueño original? ¿O es un administrador con superpoderes?
+        boolean esDuenio = plantillaExistente.getUsuario().getId().equals(usuarioLogueadoId);
+
+        if (!esDuenio && !esAdmin) {
+            throw new AccessDeniedException(
+                    "No tienes permiso para modificar esta plantilla porque pertenece a otro nutriólogo."
+            );
         }
 
-        // Actualizar datos básicos
+        // 4. Actualizar datos básicos (Nombre y tipo de comida)
         plantillaExistente.setNombre(requestDTO.nombre());
         plantillaExistente.setTipoComida(requestDTO.tipoComida());
 
-        // Limpiar detalles anteriores para reemplazar con los nuevos
+        // 5. Gestión de Alimentos:
+        // Limpiamos la lista actual para que JPA/Hibernate maneje el reemplazo automático
+        // (Gracias al orphanRemoval = true en la Entidad)
         plantillaExistente.getDetalles().clear();
 
-        // Vincular los nuevos alimentos
+        // 6. Volver a vincular los nuevos alimentos con sus cantidades (Optimizado con Map)
         vincularAlimentosConCantidades(plantillaExistente, requestDTO.alimentos());
 
+        // 7. Guardar y retornar el DTO calculado
         return plantillaMapper.toDto(plantillaRepository.save(plantillaExistente));
     }
 

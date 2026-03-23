@@ -16,10 +16,10 @@ public interface PlanAlimenticioRepository extends JpaRepository<PlanAlimenticio
 
     List<PlanAlimenticio> findByNutriologoId(Long nutriologoId);
 
-    // Versión JPQL: Más limpia y no depende de funciones específicas de MySQL
     @Query("SELECT COUNT(p) > 0 FROM PlanAlimenticio p " +
             "WHERE p.paciente.id = :pacienteId " +
             "AND p.fechaInicio <= :fechaActual " +
-            "AND FUNCTION('DATE_ADD', p.fechaInicio, p.duracionDias, 'DAY') >= :fechaActual")
+            // ADDDATE en MariaDB acepta (fecha, dias) sin necesidad de 'DAY'
+            "AND FUNCTION('ADDDATE', p.fechaInicio, p.duracionDias) >= :fechaActual")
     boolean existsPlanActivo(@Param("pacienteId") Long pacienteId, @Param("fechaActual") LocalDate fechaActual);
 }

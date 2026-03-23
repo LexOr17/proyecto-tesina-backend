@@ -2,6 +2,8 @@ package com.upemor.app_nutriologo.security;
 
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 
+import java.util.Set;
+
 public interface UserContextService {
     
     /**
@@ -21,4 +23,8 @@ public interface UserContextService {
      * @return AuthUser
      */
     AuthUser getCurrentAuthUser();
+
+    Set<String> getCurrentUserRoles();
+
+    boolean isAdmin();
 }
