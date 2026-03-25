@@ -1,6 +1,5 @@
 package com.upemor.app_nutriologo.diario_extendido.controller;
 
-
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
 import com.upemor.app_nutriologo.diario_extendido.dto.DiarioExtendidoNutriologoRequestDTO;
 import com.upemor.app_nutriologo.diario_extendido.dto.DiarioExtendidoPacienteRequestDTO;
@@ -10,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -20,58 +20,76 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/diarios-extendidos")
+@RequestMapping("/diario-extendido")
 @RequiredArgsConstructor
 public class DiarioExtendidoController {
 
     private final DiarioExtendidoService diarioService;
 
+    // --- ENDPOINTS PARA EL PACIENTE ---
+
+    /**
+     * El paciente registra o actualiza su diario del día de hoy.
+     */
     @PostMapping
     @PreAuthorize("hasRole('PACIENTE')")
     public ResponseEntity<ApiResponse<DiarioExtendidoResponseDTO>> registrarDiario(
             @Valid @RequestBody DiarioExtendidoPacienteRequestDTO dto) {
-        DiarioExtendidoResponseDTO responseDto = diarioService.registrarOActualizarDiario(dto);
-        // Nota: Como este endpoint hace "Upsert" (Crea o Actualiza), HttpStatus.CREATED o OK son válidos.
-        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.CREATED.value(), "Diario registrado/actualizado con éxito", responseDto), HttpStatus.CREATED);
+        var response = diarioService.registrarOActualizarDiario(dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(response, "Diario de hoy registrado correctamente."));
     }
 
-    @PatchMapping("/{diarioId}/observaciones")
-    @PreAuthorize("hasRole('NUTRIOLOGO')")
-    public ResponseEntity<ApiResponse<DiarioExtendidoResponseDTO>> agregarObservaciones(
-            @PathVariable Integer diarioId,
-            @Valid @RequestBody DiarioExtendidoNutriologoRequestDTO dto) { // Agregamos @Valid por precaución futura
-        DiarioExtendidoResponseDTO responseDto = diarioService.agregarObservacionesNutriologo(diarioId, dto);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Observaciones del nutriólogo agregadas", responseDto));
-    }
-
-    @GetMapping("/fecha")
+    /**
+     * El paciente consulta su propio diario por una fecha específica.
+     */
+    @GetMapping("/mi-diario")
     @PreAuthorize("hasRole('PACIENTE')")
-    public ResponseEntity<ApiResponse<DiarioExtendidoResponseDTO>> obtenerDiarioPorFecha(
+    public ResponseEntity<ApiResponse<DiarioExtendidoResponseDTO>> obtenerMiDiarioPorFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
-        DiarioExtendidoResponseDTO responseDto = diarioService.buscarDiarioPorFecha(fecha);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Diario encontrado", responseDto));
+        // Pasamos null como pacienteId para que el Service use el ID del token
+        var response = diarioService.buscarDiarioPorFecha(null, fecha);
+        return ResponseEntity.ok(ApiResponse.success(response, "Diario recuperado con éxito."));
     }
 
-    // --- NUEVO ENDPOINT ---
-    @GetMapping("/pacientes/{pacienteId}")
-    @PreAuthorize("hasAnyRole('PACIENTE', 'NUTRIOLOGO')") // Ambos roles pueden intentar acceder
-    public ResponseEntity<ApiResponse<Page<DiarioExtendidoResponseDTO>>> listarDiariosDePaciente(
+    // --- ENDPOINTS PARA EL NUTRIÓLOGO ---
+
+    /**
+     * El nutriólogo programa una sugerencia de bienestar (hoy o fecha futura).
+     */
+    @PatchMapping("/pacientes/{pacienteId}/sugerencia")
+    @PreAuthorize("hasRole('NUTRIOLOGO')")
+    public ResponseEntity<ApiResponse<DiarioExtendidoResponseDTO>> programarSugerencia(
             @PathVariable Long pacienteId,
-            @PageableDefault(size = 10, sort = "fecha") Pageable pageable) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @Valid @RequestBody DiarioExtendidoNutriologoRequestDTO dto) {
 
-        // La validación de seguridad fuerte (si el nutriólogo es el asignado al paciente)
-        // ya la programamos de manera segura en la capa Service.
-        Page<DiarioExtendidoResponseDTO> diariosPage = diarioService.listarDiariosDePaciente(pacienteId, pageable);
-
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Historial de diarios obtenido", diariosPage));
+        var response = diarioService.sugerirActividad(pacienteId, fecha, dto);
+        return ResponseEntity.ok(ApiResponse.success(response, "Sugerencia programada correctamente para el paciente."));
     }
 
-    @DeleteMapping("/{diarioId}")
-    @PreAuthorize("hasRole('PACIENTE')")
-    public ResponseEntity<ApiResponse<Void>> eliminarDiario(@PathVariable Integer diarioId) {
-        diarioService.eliminarDiario(diarioId);
+    /**
+     * El nutriólogo consulta el historial completo de un paciente de forma paginada.
+     */
+    @GetMapping("/pacientes/{pacienteId}")
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO','PACIENTE')")
+    public ResponseEntity<ApiResponse<Page<DiarioExtendidoResponseDTO>>> listarHistorialPaciente(
+            @PathVariable Long pacienteId,
+            @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        // Usamos tu método estático para respuestas sin contenido (HTTP 204 No Content / HTTP 200 OK)
-        return ResponseEntity.ok(ApiResponse.noContent("Diario eliminado con éxito"));
+        var response = diarioService.listarDiariosDePaciente(pacienteId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(response, "Historial obtenido con éxito."));
+    }
+
+    // --- ENDPOINTS ADMINISTRATIVOS ---
+
+    /**
+     * Solo un administrador puede eliminar registros permanentemente.
+     */
+    @DeleteMapping("/{diarioId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> eliminarDiario(@PathVariable Long diarioId) {
+        diarioService.eliminarDiario(diarioId);
+        return ResponseEntity.ok(ApiResponse.success(null, "El registro ha sido eliminado por el administrador."));
     }
 }

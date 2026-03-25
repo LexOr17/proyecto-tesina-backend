@@ -2,6 +2,7 @@ package com.upemor.app_nutriologo.citas.mapper;
 
 import com.upemor.app_nutriologo.citas.dto.CitaRequestDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaResponseDTO;
+import com.upemor.app_nutriologo.citas.dto.CitaSolicitudDTO;
 import com.upemor.app_nutriologo.citas.entity.Cita;
 import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
@@ -45,6 +46,22 @@ public interface CitaMapper {
             @Mapping(target = "nutriologo", ignore = true)
     })
     void updateEntityFromDto(CitaRequestDTO dto, @MappingTarget Cita cita);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "estado", ignore = true), // Se asigna en el Service
+            @Mapping(target = "fechaHoraFin", ignore = true), // Se calcula en el Service
+            @Mapping(target = "fechaHoraReprogramacionSolicitada", ignore = true),
+            @Mapping(target = "creadoEn", ignore = true),
+            @Mapping(target = "actualizadoEn", ignore = true),
+            @Mapping(source = "paciente", target = "paciente"),
+            @Mapping(source = "nutriologo", target = "nutriologo"),
+            @Mapping(source = "dto.fechaHoraInicio", target = "fechaHoraInicio"),
+            @Mapping(source = "dto.motivoCita", target = "motivoCita"),
+            @Mapping(source = "dto.detalleAdicional", target = "detalleAdicional")
+    })
+    Cita toEntity(CitaSolicitudDTO dto, Paciente paciente, Nutriologo nutriologo);
+
 
     @Named("mapNombreCompleto")
     default String mapNombreCompleto(Usuario usuario) {

@@ -3,6 +3,7 @@ package com.upemor.app_nutriologo.citas.service;
 import com.upemor.app_nutriologo.citas.dto.CitaEstadoUpdateDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaRequestDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaResponseDTO;
+import com.upemor.app_nutriologo.citas.dto.CitaSolicitudDTO;
 import com.upemor.app_nutriologo.citas.entity.Cita;
 import com.upemor.app_nutriologo.citas.enums.Estado;
 import com.upemor.app_nutriologo.citas.mapper.CitaMapper;
@@ -30,20 +31,6 @@ public class CitaServiceImpl implements CitaService {
     private final NutriologoRepository nutriologoRepository;
     private final CitaMapper citaMapper;
 
-    private void validarDisponibilidadCita(Long nutriologoId, LocalDateTime inicio, LocalDateTime fin) {
-        List<Cita> citasExistentes = citaRepository.findByNutriologoIdAndFechaHoraInicioBetween(
-                nutriologoId,
-                inicio.minusMinutes(59), // Margen de seguridad
-                fin.plusMinutes(59)
-        );
-
-        for (Cita existente : citasExistentes) {
-            if (inicio.isBefore(existente.getFechaHoraFin()) && fin.isAfter(existente.getFechaHoraInicio())) {
-                throw new ScheduleConflictException("El nutriólogo ya tiene una cita programada en este horario.");
-            }
-        }
-    }
-
     @Override
     @Transactional
     public CitaResponseDTO crearCita(CitaRequestDTO citaRequestDTO) {
@@ -53,7 +40,7 @@ public class CitaServiceImpl implements CitaService {
         Nutriologo nutriologo = nutriologoRepository.findById(citaRequestDTO.getNutriologoId())
                 .orElseThrow(() -> new EntityNotFoundException("Nutriólogo no encontrado con id: " + citaRequestDTO.getNutriologoId()));
 
-        validarDisponibilidadCita(nutriologo.getId(), citaRequestDTO.getFechaHoraInicio(), citaRequestDTO.getFechaHoraFin());
+        validarDisponibilidadCita(nutriologo.getId(), citaRequestDTO.getFechaHoraInicio(), citaRequestDTO.getFechaHoraFin(), null);
 
         Cita cita = citaMapper.toEntity(citaRequestDTO, paciente, nutriologo);
         cita.setEstado(Estado.PROGRAMADA);
@@ -83,7 +70,7 @@ public class CitaServiceImpl implements CitaService {
         Cita citaExistente = citaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cita no encontrada con id: " + id));
 
-        validarDisponibilidadCita(citaExistente.getNutriologo().getId(), citaRequestDTO.getFechaHoraInicio(), citaRequestDTO.getFechaHoraFin());
+        validarDisponibilidadCita(citaExistente.getNutriologo().getId(), citaRequestDTO.getFechaHoraInicio(), citaRequestDTO.getFechaHoraFin(), citaExistente.getId());
 
         citaMapper.updateEntityFromDto(citaRequestDTO, citaExistente);
 
@@ -136,14 +123,14 @@ public class CitaServiceImpl implements CitaService {
         switch (nuevoEstado) {
             case PROGRAMADA:
                 if (cita.getEstado() == Estado.SOLICITADA) {
-                    validarDisponibilidadCita(cita.getNutriologo().getId(), cita.getFechaHoraInicio(), cita.getFechaHoraFin());
+                    validarDisponibilidadCita(cita.getNutriologo().getId(), cita.getFechaHoraInicio(), cita.getFechaHoraFin(), cita.getId());
                     cita.setEstado(Estado.PROGRAMADA);
                 } else if (cita.getEstado() == Estado.REPROGRAMACION_SOLICITADA) {
                     LocalDateTime nuevaFechaHoraInicio = cita.getFechaHoraReprogramacionSolicitada();
                     Objects.requireNonNull(nuevaFechaHoraInicio, "No se puede aceptar una reprogramación sin una nueva fecha propuesta.");
                     LocalDateTime nuevaFechaHoraFin = nuevaFechaHoraInicio.plusHours(1);
 
-                    validarDisponibilidadCita(cita.getNutriologo().getId(), nuevaFechaHoraInicio, nuevaFechaHoraFin);
+                    validarDisponibilidadCita(cita.getNutriologo().getId(), nuevaFechaHoraInicio, nuevaFechaHoraFin, cita.getId());
 
                     cita.setFechaHoraInicio(nuevaFechaHoraInicio);
                     cita.setFechaHoraFin(nuevaFechaHoraFin);
@@ -163,7 +150,7 @@ public class CitaServiceImpl implements CitaService {
             case REPROGRAMACION_SOLICITADA:
                 Objects.requireNonNull(estadoUpdateDTO.getNuevaFechaHoraInicio(), "La nueva fecha y hora de inicio no puede ser nula para reprogramar.");
                 LocalDateTime nuevaFechaHoraFin = estadoUpdateDTO.getNuevaFechaHoraInicio().plusHours(1);
-                validarDisponibilidadCita(cita.getNutriologo().getId(), estadoUpdateDTO.getNuevaFechaHoraInicio(), nuevaFechaHoraFin);
+                validarDisponibilidadCita(cita.getNutriologo().getId(), estadoUpdateDTO.getNuevaFechaHoraInicio(), nuevaFechaHoraFin, cita.getId());
                 cita.setEstado(Estado.REPROGRAMACION_SOLICITADA);
                 cita.setFechaHoraReprogramacionSolicitada(estadoUpdateDTO.getNuevaFechaHoraInicio());
                 break;
@@ -181,5 +168,50 @@ public class CitaServiceImpl implements CitaService {
 
         Cita citaActualizada = citaRepository.save(cita);
         return citaMapper.toResponseDTO(citaActualizada);
+    }
+
+    @Override
+    @Transactional
+    public CitaResponseDTO solicitarCita(Long pacienteId, CitaSolicitudDTO dto) {
+        // 1. Recuperar entidades necesarias
+        Paciente paciente = pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
+
+        Nutriologo nutriologo = paciente.getNutriologo();
+        if (nutriologo == null) {
+            throw new IllegalStateException("El paciente no tiene un nutriólogo asignado.");
+        }
+
+        // 2. Cálculos de negocio
+        LocalDateTime fechaFin = dto.getFechaHoraInicio().plusHours(1);
+        validarDisponibilidadCita(nutriologo.getId(), dto.getFechaHoraInicio(), fechaFin, null);
+
+        // 3. Uso del Mapper
+        Cita cita = citaMapper.toEntity(dto, paciente, nutriologo);
+
+        // 4. Seteo de campos calculados/manuales
+        cita.setFechaHoraFin(fechaFin);
+        cita.setEstado(Estado.SOLICITADA);
+
+        return citaMapper.toResponseDTO(citaRepository.save(cita));
+    }
+
+    private void validarDisponibilidadCita(Long nutriologoId, LocalDateTime inicio, LocalDateTime fin, Long citaIdExcluida) {
+        // Usamos el repositorio para traer citas que NO estén canceladas
+        List<Cita> citas = citaRepository.findAllByNutriologoId(nutriologoId);
+
+        for (Cita existente : citas) {
+            // 1. Ignorar la misma cita si estamos actualizando
+            if (citaIdExcluida != null && existente.getId().equals(citaIdExcluida)) continue;
+
+            // 2. Ignorar canceladas
+            if (existente.getEstado() == Estado.CANCELADA) continue;
+
+            // 3. Validar choque
+            if (inicio.isBefore(existente.getFechaHoraFin()) && fin.isAfter(existente.getFechaHoraInicio())) {
+                throw new ScheduleConflictException("El nutriólogo ya tiene una cita en ese horario ("
+                        + existente.getFechaHoraInicio().toLocalTime() + " - " + existente.getFechaHoraFin().toLocalTime() + ")");
+            }
+        }
     }
 }

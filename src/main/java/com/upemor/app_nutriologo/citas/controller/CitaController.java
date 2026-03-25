@@ -3,6 +3,7 @@ package com.upemor.app_nutriologo.citas.controller;
 import com.upemor.app_nutriologo.citas.dto.CitaEstadoUpdateDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaRequestDTO;
 import com.upemor.app_nutriologo.citas.dto.CitaResponseDTO;
+import com.upemor.app_nutriologo.citas.dto.CitaSolicitudDTO;
 import com.upemor.app_nutriologo.citas.service.CitaService;
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -74,5 +75,14 @@ public class CitaController {
         CitaResponseDTO citaActualizada = citaService.actualizarEstadoCita(citaId, estadoUpdateDTO);
         ApiResponse<CitaResponseDTO> response = ApiResponse.success(citaActualizada, "El estado de la cita ha sido actualizado a " + estadoUpdateDTO.getNuevoEstado());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/solicitar/{pacienteId}")
+    public ResponseEntity<ApiResponse<CitaResponseDTO>> solicitarCita(
+            @PathVariable Long pacienteId,
+            @Valid @RequestBody CitaSolicitudDTO solicitudDTO) {
+
+        CitaResponseDTO nuevaCita = citaService.solicitarCita(pacienteId, solicitudDTO);
+        return new ResponseEntity<>(ApiResponse.created(nuevaCita, "Solicitud enviada"), HttpStatus.CREATED);
     }
 }

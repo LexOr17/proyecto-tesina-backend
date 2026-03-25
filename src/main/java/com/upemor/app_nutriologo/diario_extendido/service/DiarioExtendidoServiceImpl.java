@@ -1,16 +1,21 @@
 package com.upemor.app_nutriologo.diario_extendido.service;
 
+import com.upemor.app_nutriologo.common.exceptions.BadRequestException;
+import com.upemor.app_nutriologo.common.exceptions.InvalidOperationException;
 import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.diario_extendido.dto.DiarioExtendidoNutriologoRequestDTO;
 import com.upemor.app_nutriologo.diario_extendido.dto.DiarioExtendidoPacienteRequestDTO;
 import com.upemor.app_nutriologo.diario_extendido.dto.DiarioExtendidoResponseDTO;
 import com.upemor.app_nutriologo.diario_extendido.entity.BebidaConsumida;
 import com.upemor.app_nutriologo.diario_extendido.entity.DiarioExtendido;
+import com.upemor.app_nutriologo.diario_extendido.enums.Sintoma;
 import com.upemor.app_nutriologo.diario_extendido.mapper.DiarioExtendidoMapper;
 import com.upemor.app_nutriologo.diario_extendido.repository.DiarioExtendidoRepository;
-import com.upemor.app_nutriologo.paciente.repository.PacienteRepository; // Asegúrate de tener este repo
+import com.upemor.app_nutriologo.paciente.entity.Paciente;
+import com.upemor.app_nutriologo.paciente.repository.PacienteRepository;
 import com.upemor.app_nutriologo.security.UserContextService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,113 +23,147 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
-public class DiarioExtendidoServiceImpl implements DiarioExtendidoService { // Ajusté el nombre a la convención
+public class DiarioExtendidoServiceImpl implements DiarioExtendidoService {
 
     private final DiarioExtendidoRepository diarioRepository;
-    private final PacienteRepository pacienteRepository; // Inyectamos esto para el Proxy
+    private final PacienteRepository pacienteRepository;
     private final DiarioExtendidoMapper diarioMapper;
     private final UserContextService userContextService;
+
+    // Configuración de tolerancia (Días de gracia y horas extra)
+    @Value("${app.diario.max-dias-gracia:0}")
+    private int maxDiasGracia;
+
+    @Value("${app.diario.horas-gracia-extra:12}")
+    private int horasGraciaExtra;
 
     @Override
     @Transactional
     public DiarioExtendidoResponseDTO registrarOActualizarDiario(DiarioExtendidoPacienteRequestDTO dto) {
         Long pacienteId = userContextService.getCurrentUserId();
 
-        DiarioExtendido diario = diarioRepository.findByPacienteIdAndFecha(pacienteId, dto.fecha())
-                .orElseGet(() -> {
-                    DiarioExtendido nuevoDiario = new DiarioExtendido();
-                    // Usamos getReferenceById para obtener un proxy seguro para JPA
-                    nuevoDiario.setPaciente(pacienteRepository.getReferenceById(pacienteId));
-                    return nuevoDiario;
-                });
+        // 1. VALIDACIÓN DE TIEMPO: ¿Está dentro de las 12h de gracia?
+        validarVentanaRegistro(dto.fecha());
 
-        // Actualizamos los campos básicos (Asegúrate de que el mapper IGNORE la lista de bebidas aquí)
+        // 2. VALIDACIÓN DE NEGOCIO: Sintoma detalle obligatorio si es 'OTRO'
+        if (dto.sintomaPrincipal() == Sintoma.OTRO && (dto.sintomaDetalle() == null || dto.sintomaDetalle().isBlank())) {
+            throw new BadRequestException("Debes especificar el síntoma detallado al seleccionar 'OTRO'.");
+        }
+
+        // 3. OBTENER O CREAR: Buscamos el registro de ese día (puede existir por el nutriólogo)
+        DiarioExtendido diario = obtenerOAsegurarDiario(pacienteId, dto.fecha());
+
+        // 4. MAPEO: El mapper ya ignora campos del nutriólogo por configuración previa
         diarioMapper.updateEntityFromDto(dto, diario);
 
-        // Actualizamos la colección de forma segura usando los helpers de la entidad
-        diario.getBebidas().clear();
-        if (dto.bebidas() != null) {
-            dto.bebidas().forEach(bebidaDto -> {
-                BebidaConsumida nuevaBebida = diarioMapper.toEntity(bebidaDto);
-                diario.addBebida(nuevaBebida); // Usa el método helper que creamos en la entidad
-            });
-        }
+        // 5. SINCRONIZACIÓN DE BEBIDAS: Limpia y agrega (Permite corregir si olvidó alguna)
+        actualizarBebidas(diario, dto);
 
         return diarioMapper.toResponseDto(diarioRepository.save(diario));
     }
 
     @Override
     @Transactional
-    public DiarioExtendidoResponseDTO agregarObservacionesNutriologo(Integer diarioId, DiarioExtendidoNutriologoRequestDTO dto) {
+    public DiarioExtendidoResponseDTO sugerirActividad(Long pacienteId, LocalDate fecha, DiarioExtendidoNutriologoRequestDTO dto) {
         Long nutriologoId = userContextService.getCurrentUserId();
 
-        DiarioExtendido diario = diarioRepository.findById(diarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Diario no encontrado"));
+        // El nutriólogo no tiene restricción de tiempo (puede planear el futuro)
+        DiarioExtendido diario = obtenerOAsegurarDiario(pacienteId, fecha);
+        validarRelacionPacienteNutriologo(diario.getPaciente(), nutriologoId);
 
-        // Validación segura contra NullPointerExceptions
-        if (diario.getPaciente().getNutriologo() == null ||
-                !diario.getPaciente().getNutriologo().getId().equals(nutriologoId)) {
-            throw new AccessDeniedException("No tienes permiso para comentar en este diario.");
-        }
-
-        diario.setActividadFisicaSugerida(dto.actividadFisicaSugerida());
-        diario.setObservacionesNutriologo(dto.observacionesNutriologo());
+        diarioMapper.updateEntityFromNutriologoDto(dto, diario);
 
         return diarioMapper.toResponseDto(diarioRepository.save(diario));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public DiarioExtendidoResponseDTO buscarDiarioPorFecha(LocalDate fecha) {
-        Long pacienteId = userContextService.getCurrentUserId();
+    public DiarioExtendidoResponseDTO buscarDiarioPorFecha(Long pacienteId, LocalDate fecha) {
+        Long idFinal = (pacienteId == null) ? userContextService.getCurrentUserId() : pacienteId;
+        validarAccesoAPaciente(idFinal);
 
-        return diarioRepository.findByPacienteIdAndFecha(pacienteId, fecha)
+        return diarioRepository.findByPacienteIdAndFecha(idFinal, fecha)
                 .map(diarioMapper::toResponseDto)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró un diario para esa fecha."));
+                .orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<DiarioExtendidoResponseDTO> listarDiariosDePaciente(Long pacienteId, Pageable pageable) {
-        Long usuarioAutenticadoId = userContextService.getCurrentUserId();
-
-        // 1. Verificamos si el que consulta es el propio paciente
-        boolean esElPropioPaciente = usuarioAutenticadoId.equals(pacienteId);
-
-        // 2. Si no es el paciente, verificamos si es su nutriólogo
-        if (!esElPropioPaciente) {
-            var paciente = pacienteRepository.findById(pacienteId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado"));
-
-            if (paciente.getNutriologo() == null || !paciente.getNutriologo().getId().equals(usuarioAutenticadoId)) {
-                throw new AccessDeniedException("No tienes permisos para ver el historial de este paciente.");
-            }
-        }
-
-        // Nota: Necesitarás agregar este método en tu DiarioExtendidoRepository:
-        // Page<DiarioExtendido> findByPacienteIdOrderByFechaDesc(Long pacienteId, Pageable pageable);
+        validarAccesoAPaciente(pacienteId);
         return diarioRepository.findByPacienteIdOrderByFechaDesc(pacienteId, pageable)
                 .map(diarioMapper::toResponseDto);
     }
 
     @Override
     @Transactional
-    public void eliminarDiario(Integer diarioId) {
-        Long pacienteId = userContextService.getCurrentUserId();
-
+    public void eliminarDiario(Long diarioId) {
         DiarioExtendido diario = diarioRepository.findById(diarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Diario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Diario no encontrado."));
+        diarioRepository.delete(diario);
+    }
 
-        // Validamos por seguridad que el diario pertenezca al paciente autenticado
-        if (!diario.getPaciente().getId().equals(pacienteId)) {
-            throw new AccessDeniedException("No tienes permiso para eliminar este diario.");
+    // --- MÉTODOS PRIVADOS DE APOYO ---
+
+    private void validarVentanaRegistro(LocalDate fechaRegistro) {
+        LocalDateTime ahora = LocalDateTime.now();
+
+        // No permitir fechas futuras
+        if (fechaRegistro.isAfter(ahora.toLocalDate())) {
+            throw new BadRequestException("No puedes registrar un diario para una fecha futura.");
         }
 
-        // Al borrar el diario, Hibernate borrará automáticamente las bebidas asociadas
-        // gracias al cascade = CascadeType.ALL y orphanRemoval = true que pusiste en la entidad
-        diarioRepository.delete(diario);
+        // Cálculo del límite: Fin del día + Gracia
+        LocalDateTime limite = fechaRegistro.atTime(LocalTime.MAX)
+                .plusDays(maxDiasGracia)
+                .plusHours(horasGraciaExtra);
+
+        if (ahora.isAfter(limite)) {
+            throw new InvalidOperationException("El plazo para registrar o modificar el diario del " + fechaRegistro + " ha vencido.");
+        }
+    }
+
+    private DiarioExtendido obtenerOAsegurarDiario(Long pacienteId, LocalDate fecha) {
+        return diarioRepository.findByPacienteIdAndFecha(pacienteId, fecha)
+                .orElseGet(() -> {
+                    Paciente paciente = pacienteRepository.findById(pacienteId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
+
+                    return DiarioExtendido.builder()
+                            .paciente(paciente)
+                            .fecha(fecha)
+                            .actividadRealizada(false)
+                            .build();
+                });
+    }
+
+    private void actualizarBebidas(DiarioExtendido diario, DiarioExtendidoPacienteRequestDTO dto) {
+        diario.getBebidas().clear(); // Hibernate maneja el borrado de huérfanos
+        if (dto.bebidas() != null) {
+            dto.bebidas().forEach(bebidaDto -> {
+                BebidaConsumida nuevaBebida = diarioMapper.toEntity(bebidaDto);
+                diario.addBebida(nuevaBebida);
+            });
+        }
+    }
+
+    private void validarAccesoAPaciente(Long pacienteId) {
+        Long usuarioAutenticadoId = userContextService.getCurrentUserId();
+        if (!usuarioAutenticadoId.equals(pacienteId)) {
+            Paciente paciente = pacienteRepository.findById(pacienteId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado."));
+            validarRelacionPacienteNutriologo(paciente, usuarioAutenticadoId);
+        }
+    }
+
+    private void validarRelacionPacienteNutriologo(Paciente paciente, Long nutriologoId) {
+        if (paciente.getNutriologo() == null || !paciente.getNutriologo().getId().equals(nutriologoId)) {
+            throw new AccessDeniedException("No tienes permiso para acceder a los datos de este paciente.");
+        }
     }
 }

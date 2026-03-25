@@ -10,15 +10,19 @@ import java.time.LocalDate;
 
 public interface DiarioExtendidoService {
 
-    // Agregamos pacienteId para saber a quién le estamos guardando el diario
+    // El paciente registra su día (hoy)
     DiarioExtendidoResponseDTO registrarOActualizarDiario(DiarioExtendidoPacienteRequestDTO dto);
 
-    DiarioExtendidoResponseDTO agregarObservacionesNutriologo(Integer diarioId, DiarioExtendidoNutriologoRequestDTO dto);
+    // El nutriólogo sugiere (hoy o fechas futuras)
+    // Eliminamos 'agregarObservacionesNutriologo' porque este método ya cubre ambos casos
+    DiarioExtendidoResponseDTO sugerirActividad(Long pacienteId, LocalDate fecha, DiarioExtendidoNutriologoRequestDTO dto);
 
-    // Agregamos pacienteId porque la combinación Paciente + Fecha es lo que hace único al diario
-    DiarioExtendidoResponseDTO buscarDiarioPorFecha(LocalDate fecha);
+    // Consulta por fecha (usada por paciente para su hoy, o nutriólogo para revisar)
+    DiarioExtendidoResponseDTO buscarDiarioPorFecha(Long pacienteId, LocalDate fecha);
 
+    // Historial paginado
     Page<DiarioExtendidoResponseDTO> listarDiariosDePaciente(Long pacienteId, Pageable pageable);
 
-    void eliminarDiario(Integer diarioId);
+    // Solo para el Administrador
+    void eliminarDiario(Long diarioId);
 }

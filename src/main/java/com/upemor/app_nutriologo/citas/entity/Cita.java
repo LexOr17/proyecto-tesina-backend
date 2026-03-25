@@ -9,11 +9,13 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"paciente", "nutriologo"}) // Evita bucles infinitos en logs
 @Table(name = "citas")
 public class Cita {
 
@@ -43,6 +45,13 @@ public class Cita {
     @Column
     private LocalDateTime fechaHoraReprogramacionSolicitada;
 
+    // Campos de auditoría básicos
+    @Column(name = "creado_en", nullable = false, updatable = false)
+    private LocalDateTime creadoEn;
+
+    @Column(name = "actualizado_en")
+    private LocalDateTime actualizadoEn;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
@@ -50,4 +59,20 @@ public class Cita {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nutriologo_id", nullable = false)
     private Nutriologo nutriologo;
+
+    // --- Métodos de ciclo de vida JPA ---
+
+    @PrePersist
+    protected void onCreate() {
+        this.creadoEn = LocalDateTime.now();
+        // Si al guardar no tiene estado, por defecto es SOLICITADA
+        if (this.estado == null) {
+            this.estado = Estado.SOLICITADA;
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.actualizadoEn = LocalDateTime.now();
+    }
 }

@@ -2,18 +2,23 @@ package com.upemor.app_nutriologo.diario_extendido.dto;
 
 import com.upemor.app_nutriologo.diario_extendido.enums.CalidadSueno;
 import com.upemor.app_nutriologo.diario_extendido.enums.EstadoAnimo;
+import com.upemor.app_nutriologo.diario_extendido.enums.Sintoma;
+import com.upemor.app_nutriologo.diario_extendido.enums.TipoActividad;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public record DiarioExtendidoResponseDTO(
-        Integer id,
+        Long id,
         Long pacienteId,
         LocalDate fecha,
         EstadoAnimo estadoAnimo,
         CalidadSueno calidadSueno,
-        String sintomas,
+        Sintoma sintomaPrincipal,
+        String sintomaDetalle,
+        Boolean actividadRealizada,
         List<BebidaConsumidaDTO> bebidas,
-        String actividadFisicaSugerida,
+        TipoActividad tipoActividadSugerida,
+        String actividadDetalle,
         String observacionesNutriologo
 ) {}
