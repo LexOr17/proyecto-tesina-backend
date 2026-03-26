@@ -72,7 +72,7 @@ public class DiarioExtendidoController {
      * El nutriólogo consulta el historial completo de un paciente de forma paginada.
      */
     @GetMapping("/pacientes/{pacienteId}")
-    @PreAuthorize("hasAnyRole('NUTRIOLOGO','PACIENTE')")
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO','PACIENTE','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<Page<DiarioExtendidoResponseDTO>>> listarHistorialPaciente(
             @PathVariable Long pacienteId,
             @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {

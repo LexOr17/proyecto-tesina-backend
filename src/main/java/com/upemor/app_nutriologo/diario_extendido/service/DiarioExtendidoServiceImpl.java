@@ -96,6 +96,7 @@ public class DiarioExtendidoServiceImpl implements DiarioExtendidoService {
     @Transactional(readOnly = true)
     public Page<DiarioExtendidoResponseDTO> listarDiariosDePaciente(Long pacienteId, Pageable pageable) {
         validarAccesoAPaciente(pacienteId);
+
         return diarioRepository.findByPacienteIdOrderByFechaDesc(pacienteId, pageable)
                 .map(diarioMapper::toResponseDto);
     }
