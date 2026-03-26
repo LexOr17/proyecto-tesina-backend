@@ -1,10 +1,11 @@
 package com.upemor.app_nutriologo.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.upemor.app_nutriologo.meta.enums.EstadoMeta;
+
 import java.time.LocalDate;
 
 public record MetaResponseDTO(
-
         Integer id,
 
         String descripcion,
@@ -12,7 +13,9 @@ public record MetaResponseDTO(
         @JsonProperty("fecha_objetivo")
         LocalDate fechaObjetivo,
 
-        boolean cumplida,
+        EstadoMeta estado,
+
+        String observaciones,
 
         @JsonProperty("paciente_id")
         Long pacienteId,

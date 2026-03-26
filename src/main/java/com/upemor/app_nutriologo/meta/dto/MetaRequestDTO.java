@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.meta.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -14,10 +15,9 @@ public record MetaRequestDTO(
 
         @NotNull(message = "La fecha objetivo no puede ser nula")
         @FutureOrPresent(message = "La fecha objetivo debe ser en el presente o en el futuro")
-        @JsonProperty("fecha_objetivo")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate fechaObjetivo,
 
         @NotNull(message = "El ID del paciente no puede ser nulo")
-        @JsonProperty("paciente_id")
         Long pacienteId
 ) {}

@@ -7,27 +7,24 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
 public interface MetaMapper {
 
     // --- De DTO a Entidad (Creación) ---
-
-    @Mapping(target = "id", ignore = true) // El ID lo genera la base de datos
-    @Mapping(target = "cumplida", ignore = true) // Por defecto es false
-    @Mapping(target = "paciente", ignore = true) // Lo asignamos manualmente en el Service por seguridad
-    @Mapping(target = "nutriologo", ignore = true) // Lo sacamos del token en el Service
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "estado", ignore = true) // Se asigna PENDIENTE por defecto en la entidad
+    @Mapping(target = "paciente", ignore = true)
+    @Mapping(target = "nutriologo", ignore = true)
     Meta toEntity(MetaRequestDTO dto);
 
     // --- De Entidad a DTO (Lectura) ---
-
     @Mapping(source = "paciente.id", target = "pacienteId")
     @Mapping(source = "nutriologo.id", target = "nutriologoId")
     MetaResponseDTO toResponseDto(Meta meta);
 
-    // --- De DTO a Entidad (Actualización) ---
-
+    // --- De DTO a Entidad (Actualización de texto/fecha) ---
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "cumplida", ignore = true) // No queremos que se marque como cumplida por accidente al editar el texto
+    @Mapping(target = "estado", ignore = true) // No permitimos cambiar el estado desde el DTO de edición
     @Mapping(target = "paciente", ignore = true)
     @Mapping(target = "nutriologo", ignore = true)
     void updateEntityFromDto(MetaRequestDTO dto, @MappingTarget Meta entity);
