@@ -55,7 +55,7 @@ public class ChatController {
             @PathVariable Long recipientId) {
 
         List<ChatMessage> messages = chatService.getChatHistory(senderId, recipientId);
-        
+
         List<ChatMessageDTO> messageDTOs = messages.stream().map(msg ->
                 ChatMessageDTO.builder()
                         .chatId(msg.getChatId())

@@ -87,7 +87,7 @@ public class DiarioExtendidoController {
      * Solo un administrador puede eliminar registros permanentemente.
      */
     @DeleteMapping("/{diarioId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<Void>> eliminarDiario(@PathVariable Long diarioId) {
         diarioService.eliminarDiario(diarioId);
         return ResponseEntity.ok(ApiResponse.success(null, "El registro ha sido eliminado por el administrador."));

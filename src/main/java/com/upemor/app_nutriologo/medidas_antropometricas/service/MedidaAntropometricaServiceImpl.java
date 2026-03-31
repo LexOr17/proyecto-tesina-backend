@@ -44,7 +44,7 @@ public class MedidaAntropometricaServiceImpl implements MedidaAntropometricaServ
             throw new ResourceNotFoundException("Paciente no encontrado con id: " + pacienteId);
         }
 
-        return medidaRepository.findByPacienteId(pacienteId).stream()
+        return medidaRepository.findByPacienteIdOrderByFechaMedicionAsc(pacienteId).stream()
                 .map(medidaMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
@@ -52,15 +52,10 @@ public class MedidaAntropometricaServiceImpl implements MedidaAntropometricaServ
     @Override
     @Transactional(readOnly = true)
     public MedidaAntropometricaResponseDTO obtenerUltimaMedida(Long pacienteId) {
-        List<MedidaAntropometrica> historial = medidaRepository.findByPacienteId(pacienteId);
-
-        if (historial.isEmpty()) {
-            throw new ResourceNotFoundException("No hay mediciones registradas para el paciente con id: " + pacienteId);
-        }
-
-        MedidaAntropometrica ultima = historial.get(historial.size() - 1);
-
-        return medidaMapper.toResponseDto(ultima);
+        return medidaRepository.findTopByPacienteIdOrderByFechaMedicionDesc(pacienteId)
+                .map(medidaMapper::toResponseDto)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No hay mediciones registradas para el paciente con id: " + pacienteId));
     }
 
     @Override

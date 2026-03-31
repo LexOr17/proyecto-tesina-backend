@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.login.service;
 
-import com.upemor.app_nutriologo.common.exceptions.UnauthorizedException;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.correo.service.EmailService;
 import com.upemor.app_nutriologo.login.dto.LoginRequestDTO;
 import com.upemor.app_nutriologo.login.dto.LoginResponseDTO;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +46,8 @@ public class LoginServiceImpl implements LoginService {
                 .rol(usuario.getRol())
                 .expirationTime("8 horas")
                 .nombre(usuario.getNombre())
-                .apellidos(usuario.getApellidoPaterno() + " " + usuario.getApellidoMaterno())
+                .apellidos(usuario.getApellidoPaterno() +
+                        (usuario.getApellidoMaterno() != null ? " " + usuario.getApellidoMaterno() : ""))
                 .id(String.valueOf(usuario.getId()))
                 .build();
     }
@@ -55,7 +55,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void recoverPassword(PasswordRecoveryRequestDTO request) {
         Usuario usuario = usuarioRepository.findByCorreo(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró un usuario con el correo electrónico proporcionado"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró un usuario con el correo electrónico proporcionado."));
 
         String newPassword = PasswordGenerator.generarContrasena();
         usuario.setPassword(passwordEncoder.encode(newPassword));

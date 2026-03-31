@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.security;
 
+import com.upemor.app_nutriologo.common.exceptions.UnauthorizedException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -33,16 +34,13 @@ public class JwtUtils {
 
     public String generateToken(UserDetails userDetails) {
 
-        String rol = userDetails.getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority()
-                .replace("ROLE_", "");
-
-        Usuario usuario = ((AuthUser) userDetails).getUsuario();
+        String rol = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority() != null ? a.getAuthority().replace("ROLE_", "") : "")
+                .orElseThrow(() -> new UnauthorizedException("El usuario no tiene un rol asignado."));
 
         return Jwts.builder()
-                .claim("rol", rol) // 👈 IMPORTANTE
+                .claim("rol", rol) //  IMPORTANTE
                 // .claim("nombre", usuario.getNombre())
                 // .claim("apellido", usuario.getApellidoPaterno())
                 .subject(userDetails.getUsername())

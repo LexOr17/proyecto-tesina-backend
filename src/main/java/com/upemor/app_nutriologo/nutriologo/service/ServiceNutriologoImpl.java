@@ -4,6 +4,7 @@ import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.nutriologo.dto.NutriologoSelectorDTO;
 import com.upemor.app_nutriologo.nutriologo.repository.NutriologoRepository;
 import com.upemor.app_nutriologo.paciente.dto.PacienteRequestDTO;
+import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import com.upemor.app_nutriologo.paciente.repository.PacienteRepository;
 import com.upemor.app_nutriologo.security.UserContextService;
 import com.upemor.app_nutriologo.usuario.dto.UsuarioResponseDTO;
@@ -88,12 +89,11 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
     @Transactional
     public void eliminarPacienteAsignado(Long idPaciente) {
         Long idNutriologoLogueado = userContextService.getCurrentUserId();
-        pacienteRepository.findById(idPaciente)
-                .ifPresent(paciente -> {
-                    if (!paciente.getNutriologo().getId().equals(idNutriologoLogueado)) {
-                        throw new AccessDeniedException("No tienes permiso para eliminar este paciente.");
-                    }
-                    usuarioService.eliminarUsuario(idPaciente);
-                });
+        Paciente paciente = pacienteRepository.findById(idPaciente)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el paciente con el id: " + idPaciente));
+        if (!paciente.getNutriologo().getId().equals(idNutriologoLogueado)) {
+            throw new AccessDeniedException("No tienes permiso para eliminar este paciente.");
+        }
+        usuarioService.eliminarUsuario(idPaciente);
     }
 }

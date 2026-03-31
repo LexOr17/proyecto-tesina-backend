@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.security;
 
-import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.UnauthorizedException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -29,9 +29,9 @@ public class UserContextServiceImpl implements UserContextService {
     public AuthUser getCurrentAuthUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication == null || !authentication.isAuthenticated() || 
+        if (authentication == null || !authentication.isAuthenticated() ||
             !(authentication.getPrincipal() instanceof AuthUser)) {
-            throw new ResourceNotFoundException("No se encontró un usuario autenticado en el contexto de seguridad");
+            throw new UnauthorizedException("No hay una sesión activa. Por favor, inicia sesión.");
         }
         
         return (AuthUser) authentication.getPrincipal();

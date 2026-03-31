@@ -25,77 +25,42 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> crearUsuario(@Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
         UsuarioResponseDTO nuevoUsuario = usuarioService.guardarUsuario(usuarioRequestDTO);
-
-        ApiResponse<UsuarioResponseDTO> response = ApiResponse.<UsuarioResponseDTO>builder()
-                .estatus(HttpStatus.CREATED.value())
-                .mensaje("Usuario creado exitosamente")
-                .datos(nuevoUsuario)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(nuevoUsuario, "Usuario creado exitosamente"));
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<Page<UsuarioResponseDTO>>> listarUsuarios(Pageable pageable) {
         Page<UsuarioResponseDTO> usuarios = usuarioService.listarUsuarios(pageable);
-
-        ApiResponse<Page<UsuarioResponseDTO>> response = ApiResponse.<Page<UsuarioResponseDTO>>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Listado de usuarios")
-                .datos(usuarios)
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(usuarios, "Listado de usuarios"));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'NUTRIOLOGO')")
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> obtenerUsuarioPorId(@PathVariable Long id) {
         UsuarioResponseDTO usuario = usuarioService.buscarUsuarioPorId(id);
-
-        ApiResponse<UsuarioResponseDTO> response = ApiResponse.<UsuarioResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Usuario encontrado")
-                .datos(usuario)
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(usuario, "Usuario encontrado"));
     }
 
     @GetMapping("/{id}/nombre")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'NUTRIOLOGO', 'PACIENTE')")
     public ResponseEntity<ApiResponse<UsuarioNombreDTO>> obtenerNombreUsuarioPorId(@PathVariable Long id) {
         UsuarioNombreDTO usuarioNombre = usuarioService.obtenerNombreUsuarioPorId(id);
-
-        ApiResponse<UsuarioNombreDTO> response = ApiResponse.<UsuarioNombreDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Nombre de usuario encontrado")
-                .datos(usuarioNombre)
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(usuarioNombre, "Nombre de usuario encontrado"));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
         UsuarioResponseDTO usuarioActualizado = usuarioService.actualizarUsuario(id, usuarioRequestDTO);
-
-        ApiResponse<UsuarioResponseDTO> response = ApiResponse.<UsuarioResponseDTO>builder()
-                .estatus(HttpStatus.OK.value())
-                .mensaje("Usuario actualizado exitosamente")
-                .datos(usuarioActualizado)
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(usuarioActualizado, "Usuario actualizado exitosamente"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> eliminarUsuario(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminarUsuario(id);
-
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .estatus(HttpStatus.NO_CONTENT.value())
-                .mensaje("Usuario eliminado exitosamente")
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.noContent().build();
     }
 }
