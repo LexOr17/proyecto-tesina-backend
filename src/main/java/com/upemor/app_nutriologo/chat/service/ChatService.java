@@ -6,23 +6,18 @@ import com.upemor.app_nutriologo.chat.repository.ChatMessageRepository;
 import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final UsuarioRepository usuarioRepository;
-
-    @Autowired
-    public ChatService(ChatMessageRepository chatMessageRepository, UsuarioRepository usuarioRepository) {
-        this.chatMessageRepository = chatMessageRepository;
-        this.usuarioRepository = usuarioRepository;
-    }
 
     public String getChatId(Long senderId, Long recipientId) {
         return senderId < recipientId ? senderId + "_" + recipientId : recipientId + "_" + senderId;

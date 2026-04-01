@@ -1,9 +1,8 @@
 package com.upemor.app_nutriologo.diario_comidas.service;
 
-import com.upemor.app_nutriologo.common.exceptions.BadRequestException;
 import com.upemor.app_nutriologo.common.exceptions.DuplicateResourceException;
-import com.upemor.app_nutriologo.common.exceptions.InvalidOperationException;
 import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.service.DiarioVentanaValidator;
 import com.upemor.app_nutriologo.diario_comidas.dtos.DiarioComidaRequestDTO;
 import com.upemor.app_nutriologo.diario_comidas.dtos.DiarioComidaResponseDTO;
 import com.upemor.app_nutriologo.diario_comidas.dtos.ObservacionRequestDTO;
@@ -15,14 +14,10 @@ import com.upemor.app_nutriologo.plan_alimenticio.repository.ComidaProgramadaRep
 import com.upemor.app_nutriologo.security.UserContextService;
 import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -34,21 +29,16 @@ public class DiarioComidaServiceImpl implements DiarioComidaService {
     private final UsuarioRepository usuarioRepository;
     private final DiarioComidaMapper mapper;
     private final UserContextService userContextService;
-
-    @Value("${app.diario.max-dias-gracia:0}")
-    private int maxDiasGracia;
-
-    @Value("${app.diario.horas-gracia-extra:12}")
-    private int horasGraciaExtra;
+    private final DiarioVentanaValidator ventanaValidator;
 
     @Override
     @Transactional
     public DiarioComidaResponseDTO registrarComida(DiarioComidaRequestDTO dto) {
         Long pacienteId = userContextService.getCurrentUserId();
-        validarVentanaRegistro(dto.fecha());
+        ventanaValidator.validar(dto.fecha());
 
         diarioRepository.findByPacienteIdAndFechaAndHorario(pacienteId, dto.fecha(), dto.horario())
-                .ifPresent(existing -> {
+                .ifPresent(_ -> {
                     throw new DuplicateResourceException("Ya existe un registro para " + dto.horario() + " en esta fecha.");
                 });
 
@@ -75,7 +65,7 @@ public class DiarioComidaServiceImpl implements DiarioComidaService {
             throw new AccessDeniedException("No tienes permiso para editar este registro.");
         }
 
-        validarVentanaRegistro(registro.getFecha());
+        ventanaValidator.validar(registro.getFecha());
 
         registro.setEstado(dto.estado());
         registro.setDetallesComidaReal(dto.detallesComidaReal());
@@ -107,20 +97,5 @@ public class DiarioComidaServiceImpl implements DiarioComidaService {
             throw new ResourceNotFoundException("El registro no existe.");
         }
         diarioRepository.deleteById(id);
-    }
-
-    private void validarVentanaRegistro(LocalDate fechaComida) {
-        LocalDateTime ahora = LocalDateTime.now();
-        if (fechaComida.isAfter(ahora.toLocalDate())) {
-            throw new BadRequestException("No puedes registrar comidas futuras.");
-        }
-
-        // Lógica de ventana: Fin del día + días de gracia + horas extra
-        LocalDateTime limite = fechaComida.atTime(LocalTime.MAX)
-                .plusDays(maxDiasGracia).plusHours(horasGraciaExtra);
-
-        if (ahora.isAfter(limite)) {
-            throw new InvalidOperationException("El plazo para esta acción ha vencido.");
-        }
     }
 }

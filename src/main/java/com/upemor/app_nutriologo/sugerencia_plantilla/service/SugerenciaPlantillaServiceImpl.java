@@ -159,7 +159,7 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
                 .map(ComidaProgramada::getPlantilla)
                 .distinct()
                 .map(plantillaMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

@@ -32,6 +32,7 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
     private final UsuarioMapper usuarioMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<NutriologoSelectorDTO> selectorDeNutriologos() {
         return nutriologoRepository.selectorNutriologo(Sort.by(Sort.Direction.ASC,"nombre"))
                 .stream().toList();

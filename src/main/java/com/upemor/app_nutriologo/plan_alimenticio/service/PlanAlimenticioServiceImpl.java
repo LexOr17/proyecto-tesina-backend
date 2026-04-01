@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class PlanAlimenticioServiceImpl implements PlanAlimenticioService {
@@ -70,7 +69,7 @@ public class PlanAlimenticioServiceImpl implements PlanAlimenticioService {
     public List<PlanAlimenticioResponseDTO> obtenerPlanesDePaciente(Long pacienteId) {
         return planRepository.findByPacienteId(pacienteId).stream()
                 .map(mapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

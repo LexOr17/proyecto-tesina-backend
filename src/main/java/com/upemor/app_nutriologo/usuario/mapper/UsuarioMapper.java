@@ -20,25 +20,17 @@ public interface UsuarioMapper {
 
     // Métodos para convertir de Entidad a ResponseDTO (salida)
     default UsuarioResponseDTO toResponseDto(Usuario usuario) {
-        if (usuario instanceof Nutriologo) {
-            return toNutriologoResponseDto((Nutriologo) usuario);
-        } else if (usuario instanceof Paciente) {
-            return toPacienteResponseDto((Paciente) usuario);
-        } else if (usuario instanceof Administrador) {
-            return toAdminResponseDto((Administrador) usuario);
-        }
+        if (usuario instanceof Nutriologo n)    return toNutriologoResponseDto(n);
+        if (usuario instanceof Paciente p)      return toPacienteResponseDto(p);
+        if (usuario instanceof Administrador a) return toAdminResponseDto(a);
         throw new IllegalArgumentException("Tipo de entidad desconocido: " + usuario.getClass().getName());
     }
 
     // Métodos para convertir de RequestDTO a Entidad (entrada)
     default Usuario toEntity(UsuarioRequestDTO dto) {
-        if (dto instanceof NutriologoRequestDTO) {
-            return toNutriologoEntity((NutriologoRequestDTO) dto);
-        } else if (dto instanceof PacienteRequestDTO) {
-            return toPacienteEntity((PacienteRequestDTO) dto);
-        } else if (dto instanceof AdministradorRequestDTO) {
-            return toAdminEntity((AdministradorRequestDTO) dto);
-        }
+        if (dto instanceof NutriologoRequestDTO n)    return toNutriologoEntity(n);
+        if (dto instanceof PacienteRequestDTO p)      return toPacienteEntity(p);
+        if (dto instanceof AdministradorRequestDTO a) return toAdminEntity(a);
         throw new IllegalArgumentException("Tipo de DTO desconocido: " + dto.getClass().getName());
     }
 

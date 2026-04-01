@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +45,7 @@ public class MedidaAntropometricaServiceImpl implements MedidaAntropometricaServ
 
         return medidaRepository.findByPacienteIdOrderByFechaMedicionAsc(pacienteId).stream()
                 .map(medidaMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

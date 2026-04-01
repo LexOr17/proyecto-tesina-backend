@@ -1,6 +1,7 @@
 package com.upemor.app_nutriologo.paciente.entity;
 
 import com.upemor.app_nutriologo.citas.entity.Cita;
+import com.upemor.app_nutriologo.historial_medico.entity.HistorialMedico;
 import com.upemor.app_nutriologo.medidas_antropometricas.entity.MedidaAntropometrica;
 import com.upemor.app_nutriologo.meta.entity.Meta;
 import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
@@ -35,4 +36,7 @@ public class Paciente extends Usuario {
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Meta> metas;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<HistorialMedico> historialesMedicos;
 }
