@@ -36,6 +36,13 @@ public class UsuarioController {
         return ResponseEntity.ok(ApiResponse.success(usuarios, "Listado de usuarios"));
     }
 
+    @GetMapping("/buscar")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<Page<UsuarioResponseDTO>>> buscarUsuarios(@RequestParam("keyword") String keyword, Pageable pageable) {
+        Page<UsuarioResponseDTO> usuarios = usuarioService.buscarUsuariosPorPalabraClave(keyword, pageable);
+        return ResponseEntity.ok(ApiResponse.success(usuarios, "Resultados de búsqueda de usuarios"));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'NUTRIOLOGO')")
     public ResponseEntity<ApiResponse<UsuarioResponseDTO>> obtenerUsuarioPorId(@PathVariable Long id) {

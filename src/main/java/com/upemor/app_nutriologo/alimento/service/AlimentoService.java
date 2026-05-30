@@ -15,6 +15,8 @@ public interface AlimentoService {
 
     Page<AlimentoResponseDTO> listarAlimentos(Pageable pageable);
 
+    Page<AlimentoResponseDTO> buscarAlimentosPorPalabraClave(String keyword, Pageable pageable);
+
     List<AlimentoResponseDTO> buscarPorCategoria(String categoria);
 
     AlimentoResponseDTO buscarPorId(Long id);

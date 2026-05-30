@@ -65,6 +65,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<UsuarioResponseDTO> buscarUsuariosPorPalabraClave(String keyword, Pageable pageable) {
+        return usuarioRepository.searchByKeyword(keyword, pageable)
+                .map(usuarioMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarUsuarioPorId(Long id) {
         return usuarioRepository.findById(id)
                 .map(usuarioMapper::toResponseDto)

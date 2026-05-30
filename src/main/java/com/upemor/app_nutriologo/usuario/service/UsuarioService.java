@@ -12,6 +12,8 @@ public interface UsuarioService {
 
     Page<UsuarioResponseDTO> listarUsuarios(Pageable pageable);
 
+    Page<UsuarioResponseDTO> buscarUsuariosPorPalabraClave(String keyword, Pageable pageable);
+
     UsuarioResponseDTO buscarUsuarioPorId(Long id);
     
     UsuarioNombreDTO obtenerNombreUsuarioPorId(Long id);

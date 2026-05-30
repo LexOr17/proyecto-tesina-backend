@@ -3,7 +3,6 @@ package com.upemor.app_nutriologo.chat.controller;
 import com.upemor.app_nutriologo.chat.dto.ChatMessageDTO;
 import com.upemor.app_nutriologo.chat.entity.ChatMessage;
 import com.upemor.app_nutriologo.chat.service.ChatService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -23,7 +22,6 @@ public class ChatController {
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @Autowired
     public ChatController(ChatService chatService, SimpMessagingTemplate messagingTemplate) {
         this.chatService = chatService;
         this.messagingTemplate = messagingTemplate;
@@ -56,15 +54,13 @@ public class ChatController {
 
         List<ChatMessage> messages = chatService.getChatHistory(senderId, recipientId);
 
-        List<ChatMessageDTO> messageDTOs = messages.stream().map(msg ->
-                ChatMessageDTO.builder()
-                        .chatId(msg.getChatId())
-                        .senderId(msg.getSender().getId())
-                        .recipientId(msg.getRecipient().getId())
-                        .content(msg.getContent())
-                        .timestamp(msg.getTimestamp())
-                        .build()
-        ).collect(Collectors.toList());
+        List<ChatMessageDTO> messageDTOs = messages.stream().map(msg -> ChatMessageDTO.builder()
+                .chatId(msg.getChatId())
+                .senderId(msg.getSender().getId())
+                .recipientId(msg.getRecipient().getId())
+                .content(msg.getContent())
+                .timestamp(msg.getTimestamp())
+                .build()).collect(Collectors.toList());
 
         return ResponseEntity.ok(messageDTOs);
     }

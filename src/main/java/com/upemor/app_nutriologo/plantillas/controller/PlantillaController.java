@@ -42,6 +42,17 @@ public class PlantillaController {
         return ResponseEntity.ok(ApiResponse.success(plantillas, "Listado de plantillas paginado obtenido"));
     }
 
+    @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE', 'ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<Page<PlantillaResponseDTO>>> buscarPlantillas(
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+            @RequestParam(value = "categoria", required = false, defaultValue = "") String categoria,
+            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
+
+        Page<PlantillaResponseDTO> plantillas = plantillaService.buscarPlantillas(keyword, categoria, pageable);
+        return ResponseEntity.ok(ApiResponse.success(plantillas, "Plantillas encontradas"));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('NUTRIOLOGO', 'PACIENTE', 'ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<PlantillaResponseDTO>> getPlantillaById(@PathVariable Long id) {

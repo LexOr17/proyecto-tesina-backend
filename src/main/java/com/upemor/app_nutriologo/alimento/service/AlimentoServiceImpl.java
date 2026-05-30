@@ -61,6 +61,13 @@ public class AlimentoServiceImpl implements AlimentoService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<AlimentoResponseDTO> buscarAlimentosPorPalabraClave(String keyword, Pageable pageable) {
+        return alimentoRepository.searchByKeyword(keyword, pageable)
+                .map(alimentoMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<AlimentoResponseDTO> buscarPorCategoria(String categoria) {
         return alimentoRepository.findByCategoria(categoria).stream()
                 .map(alimentoMapper::toResponseDto)

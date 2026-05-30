@@ -63,6 +63,22 @@ public class PlantillaServiceImpl implements PlantillaService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<PlantillaResponseDTO> buscarPlantillas(String keyword, String categoria, Pageable pageable) {
+        com.upemor.app_nutriologo.plantillas.enums.TipoComida tipo = null;
+        if (categoria != null && !categoria.trim().isEmpty() && !categoria.equalsIgnoreCase("TODAS") && !categoria.equalsIgnoreCase("null")) {
+            try {
+                tipo = com.upemor.app_nutriologo.plantillas.enums.TipoComida.valueOf(categoria.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid category, will filter by keyword only
+            }
+        }
+        
+        return plantillaRepository.buscarPorNombreYTipoComida(keyword, tipo, pageable)
+                .map(plantillaMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PlantillaResponseDTO buscarPlantillaPorId(Long id) {
         return plantillaRepository.findById(id)
                 .map(plantillaMapper::toDto)

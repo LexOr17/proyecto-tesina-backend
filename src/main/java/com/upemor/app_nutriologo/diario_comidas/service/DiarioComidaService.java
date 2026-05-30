@@ -4,7 +4,6 @@ import com.upemor.app_nutriologo.diario_comidas.dtos.DiarioComidaRequestDTO;
 import com.upemor.app_nutriologo.diario_comidas.dtos.DiarioComidaResponseDTO;
 import com.upemor.app_nutriologo.diario_comidas.dtos.ObservacionRequestDTO;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**

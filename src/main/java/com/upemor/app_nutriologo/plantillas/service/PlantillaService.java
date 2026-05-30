@@ -11,6 +11,8 @@ public interface PlantillaService {
 
     Page<PlantillaResponseDTO> obtenerPlantillas(Pageable pageable);
 
+    Page<PlantillaResponseDTO> buscarPlantillas(String keyword, String categoria, Pageable pageable);
+
     PlantillaResponseDTO buscarPlantillaPorId(Long id);
 
     PlantillaResponseDTO actualizarPlantilla(Long id, PlantillaRequestDTO requestDTO);

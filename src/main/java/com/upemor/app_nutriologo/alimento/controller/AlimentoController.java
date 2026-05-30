@@ -49,6 +49,15 @@ public class AlimentoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'NUTRIOLOGO', 'PACIENTE')")
+    public ResponseEntity<ApiResponse<Page<AlimentoResponseDTO>>> buscarAlimentos(@RequestParam("keyword") String keyword, Pageable pageable) {
+        Page<AlimentoResponseDTO> alimentos = alimentoService.buscarAlimentosPorPalabraClave(keyword, pageable);
+
+        ApiResponse<Page<AlimentoResponseDTO>> response = ApiResponse.success(alimentos, "Alimentos encontrados");
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/categoria/{categoria}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'NUTRIOLOGO', 'PACIENTE')")
     public ResponseEntity<ApiResponse<List<AlimentoResponseDTO>>> buscarPorCategoria(@PathVariable String categoria) {

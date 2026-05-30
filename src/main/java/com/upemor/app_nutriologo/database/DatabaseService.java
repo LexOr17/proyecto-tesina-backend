@@ -53,10 +53,15 @@ public class DatabaseService {
 
         logger.info("Iniciando respaldo de la base de datos en: {}", backupPath.toAbsolutePath());
 
-        String command = String.format("mysqldump -u%s -p%s %s -r %s",
-                dbUsername, dbPassword, getDbName(), backupPath.toString());
-
-        Process process = Runtime.getRuntime().exec(command);
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "mysqldump",
+                "-u" + dbUsername,
+                "-p" + dbPassword,
+                getDbName(),
+                "-r",
+                backupPath.toString()
+        );
+        Process process = processBuilder.start();
         int exitCode = process.waitFor();
 
         if (exitCode == 0) {
@@ -73,10 +78,14 @@ public class DatabaseService {
         logger.info("Iniciando restauración desde el archivo: {}", file.getOriginalFilename());
         file.transferTo(restoreFile);
 
-        String command = String.format("mysql -u%s -p%s %s < %s",
-                dbUsername, dbPassword, getDbName(), restoreFile.toString());
-
-        Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "mysql",
+                "-u" + dbUsername,
+                "-p" + dbPassword,
+                getDbName()
+        );
+        processBuilder.redirectInput(restoreFile.toFile());
+        Process process = processBuilder.start();
         int exitCode = process.waitFor();
 
         Files.delete(restoreFile);

@@ -21,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true) // Activamos la inclusión explícita
 @Table(name = "diarios_extendidos", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"paciente_id", "fecha"})
+        @UniqueConstraint(columnNames = { "paciente_id", "fecha" })
 })
 public class DiarioExtendido {
 
@@ -46,25 +46,30 @@ public class DiarioExtendido {
     @Column(nullable = true)
     private CalidadSueno calidadSueno;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private Sintoma sintomaPrincipal = Sintoma.NINGUNO;
+
     @Column(columnDefinition = "TEXT")
     private String sintomaDetalle;
 
-    // Inicializamos la lista para evitar NullPointerException al crear un diario nuevo
+    // Inicializamos la lista para evitar NullPointerException al crear un diario
+    // nuevo
     @Builder.Default
     @OneToMany(mappedBy = "diarioExtendido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BebidaConsumida> bebidas = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private TipoActividad tipoActividadSugerida = TipoActividad.NINGUNA;
+
     private String actividadDetalle; // Instrucciones específicas
+
     @Column(columnDefinition = "TEXT")
     private String observacionesNutriologo;
 
     @Column(nullable = true)
     private Boolean actividadRealizada;
-
 
     // --- Métodos Helper para sincronizar la relación bidireccional ---
 
