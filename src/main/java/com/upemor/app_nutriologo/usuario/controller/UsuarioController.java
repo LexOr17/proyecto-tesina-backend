@@ -70,4 +70,12 @@ public class UsuarioController {
         usuarioService.eliminarUsuario(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<Void>> cambiarEstado(@PathVariable Long id, @RequestParam("activo") boolean activo) {
+        usuarioService.cambiarEstado(id, activo);
+        String mensaje = activo ? "Usuario activado exitosamente" : "Usuario desactivado exitosamente";
+        return ResponseEntity.ok(ApiResponse.success(null, mensaje));
+    }
 }

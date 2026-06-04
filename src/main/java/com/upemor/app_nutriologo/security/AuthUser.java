@@ -50,7 +50,7 @@ public class AuthUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return usuario.getActivo() != null ? usuario.getActivo() : false;
     }
 
 }

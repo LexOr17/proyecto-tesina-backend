@@ -40,5 +40,6 @@ public abstract class UsuarioResponseDTO {
     private String correo;
     private String telefono;
     private Rol rol;
+    private Boolean activo;
 
 }

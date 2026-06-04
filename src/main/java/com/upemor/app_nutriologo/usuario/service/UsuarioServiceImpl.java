@@ -117,4 +117,13 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    public void cambiarEstado(Long id, boolean activo) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario con el id: " + id));
+        usuario.setActivo(activo);
+        usuarioRepository.save(usuario);
+    }
+
 }

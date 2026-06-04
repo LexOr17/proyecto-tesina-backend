@@ -20,5 +20,7 @@ public interface UsuarioService {
 
     UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO);
 
+    void cambiarEstado(Long id, boolean activo);
+
     void eliminarUsuario(Long id);
 }

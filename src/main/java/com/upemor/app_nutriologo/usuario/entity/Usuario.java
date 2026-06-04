@@ -55,9 +55,15 @@ public abstract class Usuario {
 
     private LocalDateTime fechaRegistro;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean activo;
+
     @PrePersist
     public void prePersist() {
         fechaRegistro = LocalDateTime.now();
+        if (activo == null) {
+            activo = true;
+        }
     }
 
     @Override
