@@ -15,6 +15,7 @@ public interface MetaMapper {
     @Mapping(target = "estado", ignore = true) // Se asigna PENDIENTE por defecto en la entidad
     @Mapping(target = "paciente", ignore = true)
     @Mapping(target = "nutriologo", ignore = true)
+    @Mapping(target = "observaciones", ignore = true)
     Meta toEntity(MetaRequestDTO dto);
 
     // --- De Entidad a DTO (Lectura) ---
@@ -27,5 +28,6 @@ public interface MetaMapper {
     @Mapping(target = "estado", ignore = true) // No permitimos cambiar el estado desde el DTO de edición
     @Mapping(target = "paciente", ignore = true)
     @Mapping(target = "nutriologo", ignore = true)
+    @Mapping(target = "observaciones", ignore = true)
     void updateEntityFromDto(MetaRequestDTO dto, @MappingTarget Meta entity);
 }

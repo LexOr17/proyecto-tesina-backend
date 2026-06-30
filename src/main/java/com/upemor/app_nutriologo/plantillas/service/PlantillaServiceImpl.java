@@ -65,14 +65,15 @@ public class PlantillaServiceImpl implements PlantillaService {
     @Transactional(readOnly = true)
     public Page<PlantillaResponseDTO> buscarPlantillas(String keyword, String categoria, Pageable pageable) {
         com.upemor.app_nutriologo.plantillas.enums.TipoComida tipo = null;
-        if (categoria != null && !categoria.trim().isEmpty() && !categoria.equalsIgnoreCase("TODAS") && !categoria.equalsIgnoreCase("null")) {
+        if (categoria != null && !categoria.trim().isEmpty() && !categoria.equalsIgnoreCase("TODAS")
+                && !categoria.equalsIgnoreCase("null")) {
             try {
                 tipo = com.upemor.app_nutriologo.plantillas.enums.TipoComida.valueOf(categoria.toUpperCase());
             } catch (IllegalArgumentException e) {
                 // Ignore invalid category, will filter by keyword only
             }
         }
-        
+
         return plantillaRepository.buscarPorNombreYTipoComida(keyword, tipo, pageable)
                 .map(plantillaMapper::toDto);
     }
@@ -102,8 +103,7 @@ public class PlantillaServiceImpl implements PlantillaService {
 
         if (!esDuenio && !esAdmin) {
             throw new AccessDeniedException(
-                    "No tienes permiso para modificar esta plantilla porque pertenece a otro nutriólogo."
-            );
+                    "No tienes permiso para modificar esta plantilla porque pertenece a otro nutriólogo.");
         }
 
         // 4. Actualizar datos básicos (Nombre y tipo de comida)
@@ -111,11 +111,13 @@ public class PlantillaServiceImpl implements PlantillaService {
         plantillaExistente.setTipoComida(requestDTO.tipoComida());
 
         // 5. Gestión de Alimentos:
-        // Limpiamos la lista actual para que JPA/Hibernate maneje el reemplazo automático
+        // Limpiamos la lista actual para que JPA/Hibernate maneje el reemplazo
+        // automático
         // (Gracias al orphanRemoval = true en la Entidad)
         plantillaExistente.getDetalles().clear();
 
-        // 6. Volver a vincular los nuevos alimentos con sus cantidades (Optimizado con Map)
+        // 6. Volver a vincular los nuevos alimentos con sus cantidades (Optimizado con
+        // Map)
         vincularAlimentosConCantidades(plantillaExistente, requestDTO.alimentos());
 
         // 7. Guardar y retornar el DTO calculado
@@ -137,12 +139,13 @@ public class PlantillaServiceImpl implements PlantillaService {
     private void vincularAlimentosConCantidades(Plantilla plantilla, List<PlantillaAlimentoRequestDTO> alimentoDtos) {
         // Extraemos todos los IDs de los alimentos para buscarlos en una sola consulta
         Set<Long> ids = alimentoDtos.stream()
-                .map(PlantillaAlimentoRequestDTO::alimentoId)
+                .map(dto -> dto.alimentoId())
                 .collect(Collectors.toSet());
 
-        // Buscamos todos los alimentos de golpe y los metemos a un Map para acceso rápido
+        // Buscamos todos los alimentos de golpe y los metemos a un Map para acceso
+        // rápido
         Map<Long, Alimento> alimentosMap = alimentoRepository.findAllById(ids).stream()
-                .collect(Collectors.toMap(Alimento::getId, a -> a));
+                .collect(Collectors.toMap(dto -> dto.getId(), a -> a));
 
         if (alimentosMap.size() != ids.size()) {
             throw new ResourceNotFoundException("Uno o más alimentos no existen en el catálogo.");

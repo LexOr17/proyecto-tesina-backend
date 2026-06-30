@@ -22,4 +22,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
            "OR LOWER(u.apellidoMaterno) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "OR LOWER(u.correo) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Usuario> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    long countByActivoTrue();
 }

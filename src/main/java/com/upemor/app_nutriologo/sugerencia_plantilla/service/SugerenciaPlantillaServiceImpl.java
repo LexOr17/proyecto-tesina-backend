@@ -7,7 +7,6 @@ import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import com.upemor.app_nutriologo.paciente.repository.PacienteRepository;
-import com.upemor.app_nutriologo.plan_alimenticio.entity.ComidaProgramada;
 import com.upemor.app_nutriologo.plan_alimenticio.entity.PlanAlimenticio;
 import com.upemor.app_nutriologo.plan_alimenticio.repository.PlanAlimenticioRepository;
 import com.upemor.app_nutriologo.plantillas.dto.PlantillaAlimentoRequestDTO;
@@ -73,7 +72,7 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
                     .findPlanesActivosByPacienteId(usuarioId, LocalDate.now())
                     .stream()
                     .flatMap(plan -> plan.getComidasProgramadas().stream())
-                    .map(ComidaProgramada::getPlantilla)
+                    .map(comida -> comida.getPlantilla())
                     .anyMatch(p -> p.getId().equals(requestDTO.plantillaOriginalId()));
 
             // También aceptar sugerencias propias previas
@@ -151,12 +150,13 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
             throw new ResourceNotFoundException("No tienes un plan alimenticio activo en este momento.");
         }
 
-        // Tomar el plan más reciente (primero de la lista, ya ordenada por fechaInicio DESC)
+        // Tomar el plan más reciente (primero de la lista, ya ordenada por fechaInicio
+        // DESC)
         PlanAlimenticio planActivo = planesActivos.getFirst();
 
         // Extraer las plantillas únicas de las comidas programadas del plan
         return planActivo.getComidasProgramadas().stream()
-                .map(ComidaProgramada::getPlantilla)
+                .map(comida -> comida.getPlantilla())
                 .distinct()
                 .map(plantillaMapper::toDto)
                 .toList();
@@ -229,7 +229,7 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
         SugerenciaPlantilla sugerencia = obtenerYValidarSugerencia(id);
         Long usuarioId = userContextService.getCurrentUserId();
 
-        boolean esPacienteDuenio   = sugerencia.getPaciente().getId().equals(usuarioId);
+        boolean esPacienteDuenio = sugerencia.getPaciente().getId().equals(usuarioId);
         boolean esNutriologoDuenio = sugerencia.getNutriologo().getId().equals(usuarioId);
 
         if (!esPacienteDuenio && !esNutriologoDuenio) {
@@ -251,7 +251,8 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
 
         if (sugerencia.getEstado() != EstadoSugerencia.PENDIENTE) {
             throw new InvalidOperationException(
-                    "No se puede eliminar una sugerencia que ya fue revisada (estado: " + sugerencia.getEstado() + ").");
+                    "No se puede eliminar una sugerencia que ya fue revisada (estado: " + sugerencia.getEstado()
+                            + ").");
         }
 
         sugerenciaRepository.delete(sugerencia);
@@ -263,16 +264,17 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
 
     private SugerenciaPlantilla obtenerYValidarSugerencia(Long id) {
         return sugerenciaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sugerencia de plantilla no encontrada con id: " + id));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Sugerencia de plantilla no encontrada con id: " + id));
     }
 
     private void vincularAlimentos(SugerenciaPlantilla sugerencia, List<PlantillaAlimentoRequestDTO> alimentoDtos) {
         Set<Long> ids = alimentoDtos.stream()
-                .map(PlantillaAlimentoRequestDTO::alimentoId)
+                .map(dto -> dto.alimentoId())
                 .collect(Collectors.toSet());
 
         Map<Long, Alimento> alimentosMap = alimentoRepository.findAllById(ids).stream()
-                .collect(Collectors.toMap(Alimento::getId, a -> a));
+                .collect(Collectors.toMap(dto -> dto.getId(), a -> a));
 
         if (alimentosMap.size() != ids.size()) {
             throw new ResourceNotFoundException("Uno o más alimentos no existen en el catálogo.");
@@ -283,4 +285,3 @@ public class SugerenciaPlantillaServiceImpl implements SugerenciaPlantillaServic
         }
     }
 }
-

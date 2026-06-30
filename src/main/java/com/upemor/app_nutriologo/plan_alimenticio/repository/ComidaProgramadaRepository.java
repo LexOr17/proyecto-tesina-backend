@@ -2,11 +2,9 @@ package com.upemor.app_nutriologo.plan_alimenticio.repository;
 
 import com.upemor.app_nutriologo.plan_alimenticio.entity.ComidaProgramada;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface ComidaProgramadaRepository extends JpaRepository<ComidaProgramada, Long> {
 
     // Trae todas las comidas de un plan específico

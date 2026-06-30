@@ -15,16 +15,16 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface SugerenciaPlantillaMapper {
 
-    @Mapping(source = "paciente.id",   target = "pacienteId")
+    @Mapping(source = "paciente.id", target = "pacienteId")
     @Mapping(source = "nutriologo.id", target = "nutriologoId")
-    @Mapping(source = "detalles",      target = "totalCalorias",      qualifiedByName = "calcularCalorias")
-    @Mapping(source = "detalles",      target = "totalProteinas",     qualifiedByName = "calcularProteinas")
-    @Mapping(source = "detalles",      target = "totalCarbohidratos", qualifiedByName = "calcularCarbos")
-    @Mapping(source = "detalles",      target = "totalGrasas",        qualifiedByName = "calcularGrasas")
+    @Mapping(source = "detalles", target = "totalCalorias", qualifiedByName = "calcularCalorias")
+    @Mapping(source = "detalles", target = "totalProteinas", qualifiedByName = "calcularProteinas")
+    @Mapping(source = "detalles", target = "totalCarbohidratos", qualifiedByName = "calcularCarbos")
+    @Mapping(source = "detalles", target = "totalGrasas", qualifiedByName = "calcularGrasas")
     SugerenciaPlantillaResponseDTO toDto(SugerenciaPlantilla sugerencia);
 
-    @Mapping(source = "alimento.id",            target = "alimentoId")
-    @Mapping(source = "alimento.nombre",        target = "nombreAlimento")
+    @Mapping(source = "alimento.id", target = "alimentoId")
+    @Mapping(source = "alimento.nombre", target = "nombreAlimento")
     @Mapping(source = "alimento.unidadPorcion", target = "unidadPorcion")
     PlantillaAlimentoResponseDTO toDetalleDto(SugerenciaPlantillaDetalle detalle);
 
@@ -33,7 +33,7 @@ public interface SugerenciaPlantillaMapper {
     @Named("calcularCalorias")
     default BigDecimal calcularCalorias(List<SugerenciaPlantillaDetalle> detalles) {
         return NutrienteCalculator.sumar(detalles,
-                SugerenciaPlantillaDetalle::getCantidad,
+                d -> d.getCantidad(),
                 d -> d.getAlimento().getPorcionBase(),
                 d -> d.getAlimento().getCalorias());
     }
@@ -41,7 +41,7 @@ public interface SugerenciaPlantillaMapper {
     @Named("calcularProteinas")
     default BigDecimal calcularProteinas(List<SugerenciaPlantillaDetalle> detalles) {
         return NutrienteCalculator.sumar(detalles,
-                SugerenciaPlantillaDetalle::getCantidad,
+                a -> a.getCantidad(),
                 d -> d.getAlimento().getPorcionBase(),
                 d -> d.getAlimento().getProteina());
     }
@@ -49,7 +49,7 @@ public interface SugerenciaPlantillaMapper {
     @Named("calcularCarbos")
     default BigDecimal calcularCarbos(List<SugerenciaPlantillaDetalle> detalles) {
         return NutrienteCalculator.sumar(detalles,
-                SugerenciaPlantillaDetalle::getCantidad,
+                a -> a.getCantidad(),
                 d -> d.getAlimento().getPorcionBase(),
                 d -> d.getAlimento().getCarbohidratos());
     }
@@ -57,7 +57,7 @@ public interface SugerenciaPlantillaMapper {
     @Named("calcularGrasas")
     default BigDecimal calcularGrasas(List<SugerenciaPlantillaDetalle> detalles) {
         return NutrienteCalculator.sumar(detalles,
-                SugerenciaPlantillaDetalle::getCantidad,
+                a -> a.getCantidad(),
                 d -> d.getAlimento().getPorcionBase(),
                 d -> d.getAlimento().getGrasas());
     }

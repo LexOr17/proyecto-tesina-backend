@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.correo.service;
 
+import com.upemor.app_nutriologo.common.exceptions.MailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(mimeMessage);
 
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new MailSendException("Error al enviar correo electrónico con archivo adjunto", e);
         }
     }
 

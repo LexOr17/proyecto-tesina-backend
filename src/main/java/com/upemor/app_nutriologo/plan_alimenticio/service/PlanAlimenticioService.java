@@ -1,7 +1,7 @@
 package com.upemor.app_nutriologo.plan_alimenticio.service;
 
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.PlanAlimenticioRequestDTO;
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.PlanAlimenticioResponseDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.PlanAlimenticioRequestDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.PlanAlimenticioResponseDTO;
 
 import java.util.List;
 

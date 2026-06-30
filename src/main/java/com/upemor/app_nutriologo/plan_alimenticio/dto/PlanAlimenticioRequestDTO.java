@@ -1,4 +1,4 @@
-package com.upemor.app_nutriologo.plan_alimenticio.dtos;
+package com.upemor.app_nutriologo.plan_alimenticio.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;

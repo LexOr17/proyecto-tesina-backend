@@ -36,13 +36,33 @@ public interface UsuarioMapper {
 
     // Mapeos específicos para cada rol
     NutriologoResponseDTO toNutriologoResponseDto(Nutriologo nutriologo);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "fechaRegistro", ignore = true)
+    @Mapping(target = "activo", ignore = true)
+    @Mapping(target = "pacientes", ignore = true)
+    @Mapping(target = "citas", ignore = true)
     Nutriologo toNutriologoEntity(NutriologoRequestDTO dto);
 
     PacienteResponseDTO toPacienteResponseDto(Paciente paciente);
 
     @Mapping(target = "nutriologo.id", source = "nutriologoId")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "fechaRegistro", ignore = true)
+    @Mapping(target = "activo", ignore = true)
+    @Mapping(target = "medidasAntropometricas", ignore = true)
+    @Mapping(target = "citas", ignore = true)
+    @Mapping(target = "metas", ignore = true)
+    @Mapping(target = "historialesMedicos", ignore = true)
     Paciente toPacienteEntity(PacienteRequestDTO dto);
 
     AdministradorResponseDTO toAdminResponseDto(Administrador administrador);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "fechaRegistro", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     Administrador toAdminEntity(AdministradorRequestDTO dto);
 }

@@ -1,8 +1,8 @@
 package com.upemor.app_nutriologo.plan_alimenticio.controller;
 
 import com.upemor.app_nutriologo.common.dto.ApiResponse;
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.PlanAlimenticioRequestDTO;
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.PlanAlimenticioResponseDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.PlanAlimenticioRequestDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.PlanAlimenticioResponseDTO;
 import com.upemor.app_nutriologo.plan_alimenticio.service.PlanAlimenticioService; // Importamos la Interfaz
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

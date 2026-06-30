@@ -1,6 +1,6 @@
 package com.upemor.app_nutriologo.plan_alimenticio.mapper;
 
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.*;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.*;
 import com.upemor.app_nutriologo.plan_alimenticio.entity.ComidaProgramada;
 import com.upemor.app_nutriologo.plan_alimenticio.entity.PlanAlimenticio;
 import org.mapstruct.*;

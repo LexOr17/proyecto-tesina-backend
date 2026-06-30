@@ -32,6 +32,7 @@ public interface DiarioComidaMapper {
     @Mapping(target = "paciente", ignore = true)
     @Mapping(target = "comidaProgramada", ignore = true)
     @Mapping(target = "fechaRegistroSistema", ignore = true)
+    @Mapping(target = "observacionNutriologo", ignore = true)
     DiarioComida toEntity(DiarioComidaRequestDTO dto);
 
     /**

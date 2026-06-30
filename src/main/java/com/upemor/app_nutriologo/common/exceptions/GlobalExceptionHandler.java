@@ -172,6 +172,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MailSendException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMailSendException(MailSendException e) {
+        log.error("Error al enviar correo electrónico: {}", e.getMessage());
+        ApiResponse<Object> response = ApiResponse.builder()
+                .estatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .mensaje(e.getMessage())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception e) {
         log.error("Error inesperado: ", e);

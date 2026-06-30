@@ -1,7 +1,7 @@
 package com.upemor.app_nutriologo.database;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.upemor.app_nutriologo.common.exceptions.InvalidOperationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -15,9 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class DatabaseService {
-
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
 
     @Value("${spring.datasource.username}")
     private String dbUsername;
@@ -34,11 +33,11 @@ public class DatabaseService {
         try {
             if (!Files.exists(backupDir)) {
                 Files.createDirectories(backupDir);
-                logger.info("Directorio de backups creado en: {}", backupDir.toAbsolutePath());
+                log.info("Directorio de backups creado en: {}", backupDir.toAbsolutePath());
             }
         } catch (Exception e) {
-            logger.error("Error al crear el directorio de backups", e);
-            throw new RuntimeException("Could not create backup directory!", e);
+            log.error("Error al crear el directorio de backups", e);
+            throw new InvalidOperationException("No se pudo crear el directorio de respaldos de base de datos.", e);
         }
     }
 
@@ -51,7 +50,7 @@ public class DatabaseService {
         String fileName = "backup_" + timestamp + ".sql";
         Path backupPath = this.backupDir.resolve(fileName);
 
-        logger.info("Iniciando respaldo de la base de datos en: {}", backupPath.toAbsolutePath());
+        log.info("Iniciando respaldo de la base de datos en: {}", backupPath.toAbsolutePath());
 
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "mysqldump",
@@ -65,17 +64,17 @@ public class DatabaseService {
         int exitCode = process.waitFor();
 
         if (exitCode == 0) {
-            logger.info("Respaldo de la base de datos completado con éxito.");
+            log.info("Respaldo de la base de datos completado con éxito.");
             return new UrlResource(backupPath.toUri());
         } else {
-            logger.error("Error al crear el respaldo de la base de datos. Código de salida: {}", exitCode);
-            throw new RuntimeException("Error durante el proceso de mysqldump.");
+            log.error("Error al crear el respaldo de la base de datos. Código de salida: {}", exitCode);
+            throw new InvalidOperationException("Error durante el proceso de respaldo de la base de datos (mysqldump).");
         }
     }
 
     public void restore(MultipartFile file) throws Exception {
         Path restoreFile = this.backupDir.resolve("restore.sql");
-        logger.info("Iniciando restauración desde el archivo: {}", file.getOriginalFilename());
+        log.info("Iniciando restauración desde el archivo: {}", file.getOriginalFilename());
         file.transferTo(restoreFile);
 
         ProcessBuilder processBuilder = new ProcessBuilder(
@@ -91,10 +90,10 @@ public class DatabaseService {
         Files.delete(restoreFile);
 
         if (exitCode == 0) {
-            logger.info("Restauración de la base de datos completada con éxito.");
+            log.info("Restauración de la base de datos completada con éxito.");
         } else {
-            logger.error("Error al restaurar la base de datos. Código de salida: {}", exitCode);
-            throw new RuntimeException("Error durante el proceso de restauración de mysql.");
+            log.error("Error al restaurar la base de datos. Código de salida: {}", exitCode);
+            throw new InvalidOperationException("Error durante el proceso de restauración de la base de datos (mysql).");
         }
     }
 }

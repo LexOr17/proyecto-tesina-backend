@@ -4,6 +4,7 @@ import com.upemor.app_nutriologo.medidas_antropometricas.entity.MedidaAntropomet
 import com.upemor.app_nutriologo.medidas_antropometricas.repository.MedidaAntropometricaRepository;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import com.upemor.app_nutriologo.paciente.repository.PacienteRepository;
+import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.reportes.dto.ReporteDemograficoDTO;
 import com.upemor.app_nutriologo.reportes.dto.ReporteProgresoDTO;
 import com.upemor.app_nutriologo.usuario.enums.Genero;
@@ -65,7 +66,7 @@ public class ReporteService {
     @Transactional(readOnly = true)
     public ReporteProgresoDTO generarReporteProgreso(Long pacienteId) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado con id: " + pacienteId));
                 
         List<MedidaAntropometrica> medidas = medidaRepository.findByPacienteIdOrderByFechaMedicionAsc(pacienteId);
         

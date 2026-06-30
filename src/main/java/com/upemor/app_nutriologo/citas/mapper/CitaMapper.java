@@ -29,6 +29,9 @@ public interface CitaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "estado", ignore = true)
     @Mapping(target = "fechaHoraReprogramacionSolicitada", ignore = true)
+    @Mapping(target = "observaciones", ignore = true)
+    @Mapping(target = "creadoEn", ignore = true)
+    @Mapping(target = "actualizadoEn", ignore = true)
     @Mapping(source = "paciente", target = "paciente")
     @Mapping(source = "nutriologo", target = "nutriologo")
     Cita toEntity(CitaRequestDTO dto, Paciente paciente, Nutriologo nutriologo);
@@ -38,6 +41,9 @@ public interface CitaMapper {
     @Mapping(target = "fechaHoraReprogramacionSolicitada", ignore = true)
     @Mapping(target = "paciente", ignore = true)
     @Mapping(target = "nutriologo", ignore = true)
+    @Mapping(target = "observaciones", ignore = true)
+    @Mapping(target = "creadoEn", ignore = true)
+    @Mapping(target = "actualizadoEn", ignore = true)
     void updateEntityFromDto(CitaRequestDTO dto, @MappingTarget Cita cita);
 
     @Mapping(target = "id", ignore = true)
@@ -46,6 +52,7 @@ public interface CitaMapper {
     @Mapping(target = "fechaHoraReprogramacionSolicitada", ignore = true)
     @Mapping(target = "creadoEn", ignore = true)
     @Mapping(target = "actualizadoEn", ignore = true)
+    @Mapping(target = "observaciones", ignore = true)
     @Mapping(source = "paciente", target = "paciente")
     @Mapping(source = "nutriologo", target = "nutriologo")
     @Mapping(source = "dto.fechaHoraInicio", target = "fechaHoraInicio")

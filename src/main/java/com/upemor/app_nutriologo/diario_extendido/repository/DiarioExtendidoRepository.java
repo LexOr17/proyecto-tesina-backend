@@ -5,20 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface DiarioExtendidoRepository extends JpaRepository<DiarioExtendido, Long> {
 
-    @EntityGraph(attributePaths = {"bebidas"})
+    @EntityGraph(attributePaths = { "bebidas" })
     Optional<DiarioExtendido> findByPacienteIdAndFecha(Long pacienteId, LocalDate fecha);
 
     // NUEVO: Útil para mostrar todo el historial de un paciente
-    @EntityGraph(attributePaths = {"bebidas"})
+    @EntityGraph(attributePaths = { "bebidas" })
     List<DiarioExtendido> findAllByPacienteIdOrderByFechaDesc(Long pacienteId);
 
     Page<DiarioExtendido> findByPacienteIdOrderByFechaDesc(Long pacienteId, Pageable pageable);
@@ -27,6 +25,5 @@ public interface DiarioExtendidoRepository extends JpaRepository<DiarioExtendido
     List<DiarioExtendido> findByPacienteIdAndFechaBetweenOrderByFechaAsc(
             Long pacienteId,
             LocalDate fechaInicio,
-            LocalDate fechaFin
-    );
+            LocalDate fechaFin);
 }

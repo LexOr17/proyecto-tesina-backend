@@ -4,7 +4,6 @@ import com.upemor.app_nutriologo.common.exceptions.UnauthorizedException;
 import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -28,23 +27,24 @@ public class UserContextServiceImpl implements UserContextService {
     @Override
     public AuthUser getCurrentAuthUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+
         if (authentication == null || !authentication.isAuthenticated() ||
-            !(authentication.getPrincipal() instanceof AuthUser)) {
+                !(authentication.getPrincipal() instanceof AuthUser)) {
             throw new UnauthorizedException("No hay una sesión activa. Por favor, inicia sesión.");
         }
-        
+
         return (AuthUser) authentication.getPrincipal();
     }
 
     public Set<String> getCurrentUserRoles() {
         return getCurrentAuthUser().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+                .map(a -> a.getAuthority())
                 .collect(Collectors.toSet());
     }
 
     public boolean isAdmin() {
-        // Buscamos "ROLE_ADMINISTRADOR" porque tu AuthUser concatena "ROLE_" + "ADMINISTRADOR"
+        // Buscamos "ROLE_ADMINISTRADOR" porque tu AuthUser concatena "ROLE_" +
+        // "ADMINISTRADOR"
         return getCurrentUserRoles().contains("ROLE_ADMINISTRADOR");
     }
 }

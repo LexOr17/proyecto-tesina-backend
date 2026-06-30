@@ -5,9 +5,7 @@ import com.upemor.app_nutriologo.sugerencia_plantilla.enums.EstadoSugerencia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface SugerenciaPlantillaRepository extends JpaRepository<SugerenciaPlantilla, Long> {
 
     /** Sugerencias enviadas por un paciente concreto */
@@ -17,6 +15,6 @@ public interface SugerenciaPlantillaRepository extends JpaRepository<SugerenciaP
     Page<SugerenciaPlantilla> findByNutriologoId(Long nutriologoId, Pageable pageable);
 
     /** Sugerencias filtradas por nutriólogo y estado (ej. PENDIENTE) */
-    Page<SugerenciaPlantilla> findByNutriologoIdAndEstado(Long nutriologoId, EstadoSugerencia estado, Pageable pageable);
+    Page<SugerenciaPlantilla> findByNutriologoIdAndEstado(Long nutriologoId, EstadoSugerencia estado,
+            Pageable pageable);
 }
-

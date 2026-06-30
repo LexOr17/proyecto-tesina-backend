@@ -44,13 +44,16 @@ public class AuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
-
-            filterChain.doFilter(request, response);
-
         } catch (Exception e) {
-            log.error("Error en AuthFilter: {}", e.getMessage());
+            log.error("Error en AuthFilter al validar token: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"estatus\": 401, \"mensaje\": \"No autorizado: " + e.getMessage() + "\"}");
+            return;
         }
 
+        filterChain.doFilter(request, response);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

@@ -18,6 +18,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface DiarioExtendidoMapper {
 
     // --- Mapeos Básicos ---
+    @Mapping(target = "diarioExtendido", ignore = true)
     BebidaConsumida toEntity(BebidaConsumidaDTO dto);
     BebidaConsumidaDTO toDto(BebidaConsumida entity);
 

@@ -1,6 +1,8 @@
 package com.upemor.app_nutriologo.common.service;
 
 import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
+import com.upemor.app_nutriologo.common.exceptions.InvalidOperationException;
+import com.upemor.app_nutriologo.common.exceptions.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -29,7 +31,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (Exception ex) {
-            throw new RuntimeException("No se pudo crear el directorio donde se almacenarán los archivos subidos.", ex);
+            throw new InvalidOperationException("No se pudo crear el directorio donde se almacenarán los archivos subidos.", ex);
         }
     }
 
@@ -49,7 +51,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             // Verificar si el nombre del archivo contiene caracteres inválidos
             if (fileName.contains("..")) {
-                throw new RuntimeException("Lo sentimos! El nombre del archivo contiene una ruta inválida " + fileName);
+                throw new BadRequestException("Lo sentimos! El nombre del archivo contiene una ruta inválida " + fileName);
             }
 
             // Copiar archivo a la ubicación de destino (reemplazando archivo existente con el mismo nombre)

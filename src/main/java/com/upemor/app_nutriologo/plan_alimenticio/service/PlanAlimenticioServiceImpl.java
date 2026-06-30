@@ -2,9 +2,9 @@ package com.upemor.app_nutriologo.plan_alimenticio.service;
 
 import com.upemor.app_nutriologo.common.exceptions.InvalidOperationException;
 import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.ComidaProgramadaDTO;
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.PlanAlimenticioRequestDTO;
-import com.upemor.app_nutriologo.plan_alimenticio.dtos.PlanAlimenticioResponseDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.ComidaProgramadaDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.PlanAlimenticioRequestDTO;
+import com.upemor.app_nutriologo.plan_alimenticio.dto.PlanAlimenticioResponseDTO;
 import com.upemor.app_nutriologo.plan_alimenticio.entity.ComidaProgramada;
 import com.upemor.app_nutriologo.plan_alimenticio.entity.PlanAlimenticio;
 import com.upemor.app_nutriologo.plan_alimenticio.mapper.PlanAlimenticioMapper;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class PlanAlimenticioServiceImpl implements PlanAlimenticioService {
@@ -109,11 +110,11 @@ public class PlanAlimenticioServiceImpl implements PlanAlimenticioService {
 
     private void procesarComidas(List<ComidaProgramadaDTO> comidasDto, PlanAlimenticio plan) {
         Set<Long> plantillaIds = comidasDto.stream()
-                .map(ComidaProgramadaDTO::plantillaId)
+                .map(comidaDto -> comidaDto.plantillaId())
                 .collect(Collectors.toSet());
 
         Map<Long, Plantilla> plantillasMap = plantillaRepository.findAllById(plantillaIds).stream()
-                .collect(Collectors.toMap(Plantilla::getId, p -> p));
+                .collect(Collectors.toMap(plantilla -> plantilla.getId(), plantilla -> plantilla));
 
         for (ComidaProgramadaDTO dto : comidasDto) {
             Plantilla plantilla = plantillasMap.get(dto.plantillaId());
