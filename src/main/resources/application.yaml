@@ -1,41 +1,98 @@
+# ==============================================================================
+# CONFIGURACIÓN PRINCIPAL DE LA APLICACIÓN (Spring Boot)
+# ==============================================================================
+
 spring:
+  # Identificador de la aplicación dentro del ecosistema Spring
   application:
     name: Gestor de dietas backend
 
+  # ----------------------------------------------------------------------------
+  # CONEXIÓN A LA BASE DE DATOS (MariaDB / MySQL)
+  # ----------------------------------------------------------------------------
   datasource:
+    # URL de conexión JDBC: protocolo://servidor:puerto/nombre_base_datos
     url: jdbc:mariadb://localhost:3306/nutriologo_db
+    # Credenciales de acceso a la base de datos
     username: root
     password: 1234
+    # Driver JDBC utilizado para comunicarse con MariaDB
     driver-class-name: org.mariadb.jdbc.Driver
 
+  # ----------------------------------------------------------------------------
+  # CONFIGURACIÓN DE JPA / HIBERNATE (Mapeo Objeto-Relacional)
+  # ----------------------------------------------------------------------------
   jpa:
     hibernate:
+      # ddl-auto define cómo interactúa Hibernate con el esquema de la base de datos:
+      # - update: Actualiza las tablas existentes según las entidades sin borrar datos (recomendado en desarrollo).
+      # - create: Elimina y recrea las tablas cada vez que inicia la app (borra datos).
+      # - validate: Solo verifica que las tablas coincidan con las entidades (recomendado en producción).
+      # - none: No realiza ninguna acción sobre el esquema.
       ddl-auto: update
+    # Imprime en la consola del servidor las sentencias SQL que Hibernate genera y ejecuta
     show-sql: true
     properties:
+      # Da formato legible (saltos de línea e identación) al SQL en consola
       "[hibernate.format_sql]": true
 
+  # ----------------------------------------------------------------------------
+  # CONFIGURACIÓN DE CARGA DE ARCHIVOS HTTP (Multipart / Formularios con archivos)
+  # ----------------------------------------------------------------------------
   servlet:
     multipart:
+      # Tamaño máximo permitido para un solo archivo subido (ej. una foto o documento)
       max-file-size: 10MB
+      # Tamaño máximo total permitido para la petición HTTP completa (útil si se suben varios archivos a la vez)
       max-request-size: 10MB
 
+# ==============================================================================
+# SEGURIDAD Y TOKENS JWT
+# ==============================================================================
+# Clave secreta para firmar y verificar tokens JWT (usada en JwtUtils).
+# Debe ser una cadena larga y aleatoria (mínimo 256 bits / 32 bytes para HMAC-SHA256).
+# En producción debe mantenerse privada y pasarse preferentemente por variable de entorno.
 secreteJwtString: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
 
+# ==============================================================================
+# CONFIGURACIÓN DEL SERVICIO DE CORREO (SMTP / JavaMailSender)
+# ==============================================================================
 email:
+  # Dirección de correo desde donde se enviarán las notificaciones
   sender: lexhar13@gmail.com
+  # Servidor SMTP del proveedor de correo (ej. Gmail, Outlook, Amazon SES)
+  host: smtp.gmail.com
+  # Puerto del servidor SMTP (587 estándar para STARTTLS/TLS; 465 para SSL directo)
+  port: 587
+  # Contraseña de aplicación del correo emisor.
+  # Sintaxis ${VARIABLE:valor_por_defecto}: toma la variable de entorno MAIL_PASSWORD si existe;
+  # si no existe en el sistema, usa el valor por defecto configurado.
+  password: ${MAIL_PASSWORD:bmopdoipblhkbcji}
 
+# ==============================================================================
+# ALMACENAMIENTO DE ARCHIVOS EN DISCO
+# ==============================================================================
 file:
+  # Ruta del directorio local donde se guardarán físicamente las fotos y archivos subidos.
+  # './uploads' crea o usa una carpeta llamada 'uploads' en la raíz del proyecto.
+  # En WebConfig se configura además para permitir el acceso público web a estos archivos.
   upload-dir: ./uploads
 
+# ==============================================================================
+# PARÁMETROS ESPECÍFICOS DE LA LÓGICA DE NEGOCIO DEL SISTEMA
+# ==============================================================================
 app:
+  # Credenciales y datos del usuario Administrador inicial sembrado en la BD al arrancar (DataInitializer)
   admin:
     correo: admin@nutriologo.com
     password: Admin123
     nombre: Admin
     apellido-paterno: Principal
     telefono: "0000000000"
-  
+
+  # Parámetros para la ventana de tiempo en la que los pacientes pueden registrar o editar su diario de comidas
   diario:
-    max-dias-gracia: 0     # días de gracia para editar comidas
-    horas-gracia-extra: 12 # horas de gracia extra para editar comidas
+    # Cantidad de días pasados permitidos para registrar o editar comidas (0 = únicamente el día actual)
+    max-dias-gracia: 0
+    # Horas adicionales de tolerancia después de concluido el día (ej. 12 horas del día siguiente para registrar la cena)
+    horas-gracia-extra: 12

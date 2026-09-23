@@ -1,5 +1,6 @@
 package com.upemor.app_nutriologo.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,11 +26,23 @@ import java.util.Properties;
 @EnableAsync
 public class MailConfiguration {
 
+    @Value("${email.host}")
+    private String host;
+
+    @Value("${email.port}")
+    private int port;
+
+    @Value("${email.sender}")
+    private String username;
+
+    @Value("${email.password}")
+    private String password;
+
     /**
      * Crea y configura el bean {@link JavaMailSender} con los parámetros de conexión SMTP.
      * <p>
-     * Establece el host ({@code smtp.gmail.com}), puerto (587), credenciales de autenticación
-     * y propiedades de transporte seguro (STARTTLS y autenticación activada).
+     * Establece el host, puerto, credenciales de autenticación
+     * y propiedades de transporte seguro (STARTTLS y autenticación activada) obtenidos desde la configuración.
      * </p>
      *
      * @return instancia configurada de {@link JavaMailSender} para el envío de correos.
@@ -37,10 +50,10 @@ public class MailConfiguration {
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-        mailSender.setUsername("lexhar13@gmail.com");
-        mailSender.setPassword("bmopdoipblhkbcji");
+        mailSender.setHost(host);
+        mailSender.setPort(port);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
 
         Properties properties = mailSender.getJavaMailProperties();
         properties.put("mail.transport.protocol", "smtp");
