@@ -4,6 +4,7 @@ import com.upemor.app_nutriologo.plantillas.dto.PlantillaResponseDTO;
 import com.upemor.app_nutriologo.sugerencia_plantilla.dto.SugerenciaPlantillaRequestDTO;
 import com.upemor.app_nutriologo.sugerencia_plantilla.dto.SugerenciaPlantillaResponseDTO;
 import com.upemor.app_nutriologo.sugerencia_plantilla.dto.SugerenciaRevisionDTO;
+import com.upemor.app_nutriologo.sugerencia_plantilla.enums.EstadoSugerencia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,7 +28,7 @@ public interface SugerenciaPlantillaService {
     List<PlantillaResponseDTO> obtenerPlantillasDelPlanActual();
 
     /** PACIENTE: consulta su propio historial de sugerencias */
-    Page<SugerenciaPlantillaResponseDTO> obtenerSugerenciasDePaciente(Pageable pageable);
+    Page<SugerenciaPlantillaResponseDTO> obtenerSugerenciasDePaciente(Pageable pageable, EstadoSugerencia estado);
 
     /** NUTRIÓLOGO: ve todas las sugerencias recibidas de sus pacientes */
     Page<SugerenciaPlantillaResponseDTO> obtenerSugerenciasParaNutriologo(Pageable pageable);

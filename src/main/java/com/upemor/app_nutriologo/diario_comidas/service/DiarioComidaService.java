@@ -7,39 +7,55 @@ import com.upemor.app_nutriologo.diario_comidas.dtos.ObservacionRequestDTO;
 import java.util.List;
 
 /**
- * Contrato de servicios para la gestión del diario alimenticio.
- * Define las operaciones permitidas para Pacientes, Nutriólogos y Administradores.
+ * Contrato de servicios para la gestión del diario de consumo alimenticio.
+ * <p>
+ * Define las operaciones permitidas para que los pacientes registren sus comidas diarias
+ * y los nutriólogos revisen historiales y agreguen retroalimentación clínica.
+ * </p>
+ *
+ * @author Sistema Nutriólogo
+ * @version 1.0
  */
 public interface DiarioComidaService {
 
     /**
-     * Registra un nuevo consumo para el paciente autenticado.
+     * Registra un nuevo consumo de comida para el paciente autenticado.
+     *
+     * @param dto Datos del registro de comida.
+     * @return DTO con la información de la comida registrada.
      */
     DiarioComidaResponseDTO registrarComida(DiarioComidaRequestDTO dto);
 
     /**
-     * Actualiza un registro existente (Solo permitido bajo la regla de ventana de tiempo).
+     * Actualiza un registro existente de comida respetando las reglas de la ventana de tiempo.
+     *
+     * @param id  Identificador único del registro a actualizar.
+     * @param dto Nuevos datos del registro de comida.
+     * @return DTO con la información actualizada del registro.
      */
     DiarioComidaResponseDTO actualizarComida(Long id, DiarioComidaRequestDTO dto);
 
     /**
-     * Recupera el historial de un paciente específico.
-     * @param pacienteId ID del paciente a consultar.
+     * Recupera el historial completo de comidas de un paciente específico ordenado cronológicamente.
+     *
+     * @param pacienteId Identificador único del paciente a consultar.
+     * @return Lista de registros del diario de comidas del paciente.
      */
     List<DiarioComidaResponseDTO> obtenerHistorialPorPaciente(Long pacienteId);
 
     /**
-     * Permite al nutriólogo añadir una nota o feedback a un registro de comida.
+     * Permite al nutriólogo añadir o actualizar una observación profesional en un registro de comida.
+     *
+     * @param id  Identificador único del registro a retroalimentar.
+     * @param dto DTO con el texto de la observación clínica.
+     * @return DTO con el registro actualizado conteniendo la observación.
      */
     DiarioComidaResponseDTO agregarObservacion(Long id, ObservacionRequestDTO dto);
 
     /**
-     * Elimina permanentemente un registro (Operación administrativa).
+     * Elimina permanentemente un registro de comida del diario.
+     *
+     * @param id Identificador único del registro a eliminar.
      */
     void eliminarRegistro(Long id);
-
-    /**
-     * (Opcional) Obtiene registros en un rango de fechas para reportes específicos.
-     */
-//    List<DiarioComidaResponseDTO> obtenerDiarioPorRango(Long pacienteId, LocalDate inicio, LocalDate fin);
 }

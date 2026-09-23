@@ -4,10 +4,13 @@ import com.upemor.app_nutriologo.alimento.entity.Alimento;
 import com.upemor.app_nutriologo.nutriologo.entity.Nutriologo;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import com.upemor.app_nutriologo.plantillas.enums.TipoComida;
+import com.upemor.app_nutriologo.sugerencia_plantilla.enums.CategoriaMotivoSugerencia;
 import com.upemor.app_nutriologo.sugerencia_plantilla.enums.EstadoSugerencia;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -46,6 +49,11 @@ public class SugerenciaPlantilla {
     @Builder.Default
     private EstadoSugerencia estado = EstadoSugerencia.PENDIENTE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categoria_motivo", length = 50)
+    @Builder.Default
+    private CategoriaMotivoSugerencia categoriaMotivo = CategoriaMotivoSugerencia.PREFERENCIA_SABOR;
+
     @Column(length = 500)
     private String motivoSugerencia;
 
@@ -69,6 +77,7 @@ public class SugerenciaPlantilla {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nutriologo_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Nutriologo nutriologo;
 
     @Builder.Default
@@ -88,4 +97,3 @@ public class SugerenciaPlantilla {
         this.detalles.add(detalle);
     }
 }
-

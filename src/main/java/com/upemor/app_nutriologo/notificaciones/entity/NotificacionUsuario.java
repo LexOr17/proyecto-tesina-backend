@@ -4,6 +4,8 @@ import com.upemor.app_nutriologo.usuario.entity.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +35,7 @@ public class NotificacionUsuario {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destinatario_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Usuario destinatario;
 
     @Builder.Default

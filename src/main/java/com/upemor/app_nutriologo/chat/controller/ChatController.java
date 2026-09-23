@@ -3,6 +3,8 @@ package com.upemor.app_nutriologo.chat.controller;
 import com.upemor.app_nutriologo.chat.dto.ChatMessageDTO;
 import com.upemor.app_nutriologo.chat.entity.ChatMessage;
 import com.upemor.app_nutriologo.chat.service.ChatService;
+import com.upemor.app_nutriologo.notificaciones.enums.TipoNotificacion;
+import com.upemor.app_nutriologo.notificaciones.service.NotificacionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,10 +23,14 @@ public class ChatController {
 
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificacionService notificacionService;
 
-    public ChatController(ChatService chatService, SimpMessagingTemplate messagingTemplate) {
+    public ChatController(ChatService chatService,
+                          SimpMessagingTemplate messagingTemplate,
+                          NotificacionService notificacionService) {
         this.chatService = chatService;
         this.messagingTemplate = messagingTemplate;
+        this.notificacionService = notificacionService;
     }
 
     @MessageMapping("/chat")
@@ -36,14 +42,30 @@ public class ChatController {
                 .senderId(savedMessage.getSender().getId())
                 .recipientId(savedMessage.getRecipient().getId())
                 .content(savedMessage.getContent())
-                .timestamp(savedMessage.getTimestamp())
+                .timestamp(savedMessage.getTimestamp() != null ? savedMessage.getTimestamp().toString() : null)
                 .build();
 
-        // Enviar el mensaje al destinatario a través de WebSocket
+        // Enviar el mensaje al destinatario a través de WebSocket (canal directo de chat)
         messagingTemplate.convertAndSendToUser(
                 savedMessage.getRecipient().getId().toString(), // ID del usuario destinatario
                 "/queue/messages", // Destino privado del usuario
                 responseDto // El mensaje en formato DTO
+        );
+
+        // Notificar en la campana / sistema de notificaciones
+        String remitenteNombre = savedMessage.getSender().getNombre() +
+                (savedMessage.getSender().getApellidoPaterno() != null ? " " + savedMessage.getSender().getApellidoPaterno() : "");
+        String contenidoPreview = savedMessage.getContent();
+        if (contenidoPreview != null && contenidoPreview.length() > 60) {
+            contenidoPreview = contenidoPreview.substring(0, 57) + "...";
+        }
+
+        notificacionService.enviarAUsuario(
+                savedMessage.getRecipient().getId(),
+                TipoNotificacion.NUEVO_MENSAJE_CHAT,
+                "Nuevo mensaje de " + remitenteNombre.trim(),
+                contenidoPreview != null ? contenidoPreview : "",
+                "/main/chat"
         );
     }
 
@@ -59,7 +81,7 @@ public class ChatController {
                 .senderId(msg.getSender().getId())
                 .recipientId(msg.getRecipient().getId())
                 .content(msg.getContent())
-                .timestamp(msg.getTimestamp())
+                .timestamp(msg.getTimestamp() != null ? msg.getTimestamp().toString() : null)
                 .build()).collect(Collectors.toList());
 
         return ResponseEntity.ok(messageDTOs);

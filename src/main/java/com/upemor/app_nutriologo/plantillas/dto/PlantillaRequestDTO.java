@@ -8,6 +8,15 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
+/**
+ * DTO para la creación y actualización de una plantilla de comida.
+ *
+ * @param nombre     Nombre descriptivo o título de la plantilla.
+ * @param tipoComida Momento o categoría de comida asignada a la plantilla (desayuno, almuerzo, etc.).
+ * @param alimentos  Lista de alimentos y cantidades que conforman la plantilla.
+ * @author Sistema Nutriólogo
+ * @version 1.0
+ */
 public record PlantillaRequestDTO(
         @NotBlank(message = "El nombre no puede estar vacío")
         String nombre,

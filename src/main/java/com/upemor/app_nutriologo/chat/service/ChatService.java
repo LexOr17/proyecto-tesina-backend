@@ -9,7 +9,6 @@ import com.upemor.app_nutriologo.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,13 +25,11 @@ public class ChatService {
     public ChatMessage save(ChatMessageDTO chatMessageDTO) {
         Usuario sender = usuarioRepository.findById(chatMessageDTO.getSenderId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Usuario remitente no encontrado con ID: " + chatMessageDTO.getSenderId()
-                ));
+                        "Usuario remitente no encontrado con ID: " + chatMessageDTO.getSenderId()));
 
         Usuario recipient = usuarioRepository.findById(chatMessageDTO.getRecipientId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Usuario destinatario no encontrado con ID: " + chatMessageDTO.getRecipientId()
-                ));
+                        "Usuario destinatario no encontrado con ID: " + chatMessageDTO.getRecipientId()));
 
         String chatId = getChatId(sender.getId(), recipient.getId());
 
@@ -41,8 +38,23 @@ public class ChatService {
         chatMessage.setSender(sender);
         chatMessage.setRecipient(recipient);
         chatMessage.setContent(chatMessageDTO.getContent());
-        chatMessage.setTimestamp(chatMessageDTO.getTimestamp() != null ? chatMessageDTO.getTimestamp() : LocalDateTime.now());
-        
+
+        java.time.LocalDateTime ts = java.time.LocalDateTime.now();
+        if (chatMessageDTO.getTimestamp() != null && !chatMessageDTO.getTimestamp().trim().isEmpty()) {
+            try {
+                ts = java.time.Instant.parse(chatMessageDTO.getTimestamp())
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDateTime();
+            } catch (Exception e) {
+                try {
+                    ts = java.time.LocalDateTime.parse(chatMessageDTO.getTimestamp());
+                } catch (Exception ex) {
+                    // Fallback to current time
+                }
+            }
+        }
+        chatMessage.setTimestamp(ts);
+
         return chatMessageRepository.save(chatMessage);
     }
 

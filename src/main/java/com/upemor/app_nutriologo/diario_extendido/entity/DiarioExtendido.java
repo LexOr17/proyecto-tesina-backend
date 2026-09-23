@@ -7,7 +7,6 @@ import com.upemor.app_nutriologo.diario_extendido.enums.TipoActividad;
 import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ public class DiarioExtendido {
     private Paciente paciente;
 
     @Column(nullable = false)
-    @CreationTimestamp
     private LocalDate fecha;
 
     @Enumerated(EnumType.STRING)

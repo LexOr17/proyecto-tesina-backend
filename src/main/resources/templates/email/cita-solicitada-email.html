@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nueva Solicitud de Cita</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f0fdf4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+<!-- Wrapper table for email client compatibility -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f0fdf4;">
+    <tr>
+        <td align="center" style="padding: 40px 16px;">
+
+            <!-- Main card -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560"
+                   style="max-width: 560px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+                <!-- Header with gradient -->
+                <tr>
+                    <td style="background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%); padding: 36px 40px; text-align: center;">
+                        <!-- App icon -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+                            <tr>
+                                <td style="background-color: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center;">
+                                    <span style="font-size: 28px; line-height: 1;">&#127823;</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <h1 style="color: #ffffff; margin: 16px 0 4px 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
+                            NutriGestor
+                        </h1>
+                        <p style="color: rgba(255,255,255,0.85); margin: 0; font-size: 14px; font-weight: 400;">
+                            Gestión de Dietas y Nutrición
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Body content -->
+                <tr>
+                    <td style="padding: 36px 40px 20px 40px;">
+                        <!-- Badge -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="background-color: #eff6ff; border-radius: 20px; padding: 6px 16px; border: 1px solid #bfdbfe;">
+                                    <span style="color: #1d4ed8; font-size: 13px; font-weight: 600;">&#128221; Nueva Solicitud de Cita</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h2 style="color: #1e293b; margin: 20px 0 8px 0; font-size: 20px; font-weight: 700;">
+                            Hola, <span th:text="${nombreNutriologo}" style="color: #0d9488;">Nutriólogo(a)</span>
+                        </h2>
+                        <p style="color: #64748b; margin: 0 0 24px 0; font-size: 15px; line-height: 1.6;">
+                            Un paciente ha registrado una nueva solicitud de cita en el sistema. A continuación se presentan los detalles:
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Details box -->
+                <tr>
+                    <td style="padding: 0 40px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                               style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                            <!-- Paciente -->
+                            <tr>
+                                <td style="padding: 16px 20px 12px 20px;">
+                                    <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0 0 4px 0;">
+                                        &#128100; Paciente
+                                    </p>
+                                    <p th:text="${nombrePaciente}" style="color: #1e293b; font-size: 15px; font-weight: 600; margin: 0;">
+                                        Nombre del Paciente
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 20px;">
+                                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 0;"/>
+                                </td>
+                            </tr>
+                            <!-- Fecha y Hora -->
+                            <tr>
+                                <td style="padding: 12px 20px;">
+                                    <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0 0 4px 0;">
+                                        &#128197; Fecha y Hora Solicitada
+                                    </p>
+                                    <p th:text="${fechaHoraInicio}" style="color: #1e293b; font-size: 15px; font-weight: 600; margin: 0;">
+                                        01/01/2026 10:00
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 20px;">
+                                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 0;"/>
+                                </td>
+                            </tr>
+                            <!-- Motivo -->
+                            <tr>
+                                <td style="padding: 12px 20px;">
+                                    <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0 0 4px 0;">
+                                        &#129658; Motivo de Consulta
+                                    </p>
+                                    <p th:text="${motivoCita}" style="color: #0d9488; font-size: 15px; font-weight: 600; margin: 0;">
+                                        Primera vez
+                                    </p>
+                                </td>
+                            </tr>
+                            <!-- Detalle adicional si existe -->
+                            <tr th:if="${detalleAdicional != null and !detalleAdicional.isBlank()}">
+                                <td style="padding: 0 20px;">
+                                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 0;"/>
+                                </td>
+                            </tr>
+                            <tr th:if="${detalleAdicional != null and !detalleAdicional.isBlank()}">
+                                <td style="padding: 12px 20px 16px 20px;">
+                                    <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0 0 4px 0;">
+                                        &#128172; Detalle Adicional del Paciente
+                                    </p>
+                                    <p th:text="${detalleAdicional}" style="color: #475569; font-size: 14px; margin: 0;">
+                                        Información extra proporcionada
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Action notification card -->
+                <tr>
+                    <td style="padding: 24px 40px 12px 40px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                               style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
+                            <tr>
+                                <td style="padding: 16px 20px;">
+                                    <p style="color: #166534; font-size: 13px; line-height: 1.5; margin: 0;">
+                                        <strong>&#128276; Acción requerida:</strong> Puedes ingresar a tu panel de <strong>Citas</strong> en NutriGestor para aceptar la cita o coordinar una nueva fecha.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Divider -->
+                <tr>
+                    <td style="padding: 20px 40px 0 40px;">
+                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 0;"/>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 24px 40px 36px 40px; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0;">
+                            Este es un correo automático generado por <strong style="color: #64748b;">NutriGestor</strong>.<br/>
+                            Por favor, no responda a este mensaje.
+                        </p>
+                        <p style="color: #cbd5e1; font-size: 11px; margin: 12px 0 0 0;">
+                            &copy; 2026 NutriGestor &mdash; Gestión de Dietas y Nutrición
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

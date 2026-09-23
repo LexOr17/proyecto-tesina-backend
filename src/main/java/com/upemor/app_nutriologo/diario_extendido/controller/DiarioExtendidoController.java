@@ -81,15 +81,15 @@ public class DiarioExtendidoController {
         return ResponseEntity.ok(ApiResponse.success(response, "Historial obtenido con éxito."));
     }
 
-    // --- ENDPOINTS ADMINISTRATIVOS ---
+    // --- ENDPOINTS ADMINISTRATIVOS Y DE CONTROL ---
 
     /**
-     * Solo un administrador puede eliminar registros permanentemente.
+     * Un administrador o nutriólogo puede eliminar registros permanentemente.
      */
     @DeleteMapping("/{diarioId}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'NUTRIOLOGO')")
     public ResponseEntity<ApiResponse<Void>> eliminarDiario(@PathVariable Long diarioId) {
         diarioService.eliminarDiario(diarioId);
-        return ResponseEntity.ok(ApiResponse.success(null, "El registro ha sido eliminado por el administrador."));
+        return ResponseEntity.ok(ApiResponse.success(null, "El registro ha sido eliminado correctamente."));
     }
 }

@@ -21,6 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Implementación de la capa de servicios para las operaciones exclusivas de los nutriólogos.
+ * <p>
+ * Gestiona el registro y tutela de pacientes asignados al profesional en sesión,
+ * verificando los controles de acceso contextuales mediante {@link UserContextService}
+ * para evitar accesos cruzados no autorizados entre diferentes nutriólogos.
+ * </p>
+ *
+ * @author Sistema Nutriólogo
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ServiceNutriologoImpl implements ServiceNutriologo {
@@ -31,6 +42,11 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
     private final UserContextService userContextService;
     private final UsuarioMapper usuarioMapper;
 
+    /**
+     * Obtiene el listado de nutriólogos ordenados alfabéticamente para componentes selectores.
+     *
+     * @return lista de {@link NutriologoSelectorDTO}.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<NutriologoSelectorDTO> selectorDeNutriologos() {
@@ -38,6 +54,12 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
                 .stream().toList();
     }
 
+    /**
+     * Da de alta un nuevo paciente vinculándolo automáticamente al identificador del nutriólogo en sesión.
+     *
+     * @param pacienteDTO datos del paciente a registrar.
+     * @return {@link UsuarioResponseDTO} con los datos del paciente dado de alta.
+     */
     @Override
     @Transactional
     public UsuarioResponseDTO registrarPaciente(PacienteRequestDTO pacienteDTO) {
@@ -47,14 +69,32 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
         return usuarioService.guardarUsuario(pacienteDTO);
     }
 
+    /**
+     * Recupera la página de pacientes asignados al nutriólogo en sesión o todos si el usuario es administrador.
+     *
+     * @param pageable configuración de paginación y ordenamiento.
+     * @return página {@link Page} de {@link UsuarioResponseDTO}.
+     */
     @Override
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDTO> listarPacientesAsignados(Pageable pageable) {
+        if (userContextService.isAdmin()) {
+            return pacienteRepository.findAll(pageable)
+                    .map(usuarioMapper::toResponseDto);
+        }
         Long idNutriologoLogueado = userContextService.getCurrentUserId();
         return pacienteRepository.findByNutriologoId(idNutriologoLogueado, pageable)
                 .map(usuarioMapper::toResponseDto);
     }
 
+    /**
+     * Localiza a un paciente asignado verificando que pertenezca al nutriólogo en sesión o al propio paciente.
+     *
+     * @param idPaciente identificador primario del paciente.
+     * @return {@link UsuarioResponseDTO} con los datos del paciente consultado.
+     * @throws AccessDeniedException si el usuario no tiene permisos para consultar este paciente.
+     * @throws ResourceNotFoundException si el paciente no existe.
+     */
     @Override
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPacienteAsignado(Long idPaciente) {
@@ -71,6 +111,15 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el paciente con el id: " + idPaciente));
     }
 
+    /**
+     * Actualiza los datos de un paciente verificando que pertenezca a la cartera del nutriólogo en sesión.
+     *
+     * @param idPaciente identificador primario del paciente a modificar.
+     * @param pacienteDTO información actualizada del paciente.
+     * @return {@link UsuarioResponseDTO} con los datos actualizados.
+     * @throws AccessDeniedException si el paciente no está asignado al nutriólogo actual.
+     * @throws ResourceNotFoundException si el paciente no existe.
+     */
     @Override
     @Transactional
     public UsuarioResponseDTO actualizarPacienteAsignado(Long idPaciente, PacienteRequestDTO pacienteDTO) {
@@ -86,6 +135,13 @@ public class ServiceNutriologoImpl implements ServiceNutriologo {
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el paciente con el id: " + idPaciente));
     }
 
+    /**
+     * Elimina a un paciente asignado validando la autorización del nutriólogo en sesión.
+     *
+     * @param idPaciente identificador primario del paciente a eliminar.
+     * @throws AccessDeniedException si el paciente no está asignado al nutriólogo en sesión.
+     * @throws ResourceNotFoundException si el paciente no existe.
+     */
     @Override
     @Transactional
     public void eliminarPacienteAsignado(Long idPaciente) {

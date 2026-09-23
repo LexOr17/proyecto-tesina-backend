@@ -9,6 +9,9 @@ public interface EmailService {
     @Async
     void sendEmail(String[] destinatario, String asunto, String contenido);
 
+    @Async
+    void sendHtmlEmail(String[] destinatario, String asunto, String contenidoHtml);
+
     void sendEmailWithFile(String[] destinatario, String asunto, String contenido, File archivo);
 
 }

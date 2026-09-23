@@ -12,6 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Servicio encargado de calcular y recopilar estadísticas e indicadores globales para el panel de administración.
+ * <p>
+ * Agrega información desde múltiples repositorios ({@link UsuarioRepository}, {@link NutriologoRepository},
+ * {@link PacienteRepository}, {@link CitaRepository}) para suministrar un resumen cuantitativo en tiempo real.
+ * </p>
+ *
+ * @author Sistema Nutriólogo
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class AdminDashboardService {
@@ -21,6 +31,11 @@ public class AdminDashboardService {
     private final PacienteRepository pacienteRepository;
     private final CitaRepository citaRepository;
 
+    /**
+     * Recopila y consolida las métricas globales del sistema para el panel administrativo.
+     *
+     * @return {@link AdminDashboardStatsDTO} con las métricas consolidadas (totales de usuarios, citas del día y activos).
+     */
     @Transactional(readOnly = true)
     public AdminDashboardStatsDTO obtenerStats() {
         long totalUsuarios = usuarioRepository.count();

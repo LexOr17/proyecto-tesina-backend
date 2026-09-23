@@ -9,6 +9,23 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * DTO inmutable (record) para la solicitud de creación y configuración de un nuevo plan alimenticio.
+ * <p>
+ * Contiene los metadatos del plan, periodo de vigencia, paciente destinatario y la lista
+ * de comidas programadas a incluir.
+ * </p>
+ *
+ * @param nombre título o nombre descriptivo del plan.
+ * @param fechaInicio fecha prevista para iniciar el régimen alimenticio.
+ * @param duracionDias duración en días del plan (mínimo 1 día).
+ * @param pacienteId identificador primario del paciente al que se prescribe el plan.
+ * @param nutriologoId identificador primario del nutriólogo (opcional si se infiere del token de sesión).
+ * @param comidas lista con al menos una comida programada estructurada por día y horario.
+ *
+ * @author Sistema Nutriólogo
+ * @version 1.0
+ */
 public record PlanAlimenticioRequestDTO(
         @NotBlank(message = "El nombre del plan no puede estar vacío")
         String nombre,

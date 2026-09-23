@@ -9,24 +9,34 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 /**
- * Mapper para convertir entre la entidad DiarioComida y sus respectivos Records (DTOs).
- * MapStruct 1.5+ soporta Records de forma nativa.
+ * Mapper MapStruct para la conversión entre la entidad {@link DiarioComida} y sus respectivos DTOs.
+ * <p>
+ * Facilita la transformación bidireccional entre peticiones de registro/actualización,
+ * entidades persistidas y objetos de transferencia de respuesta.
+ * </p>
+ *
+ * @author Sistema Nutriólogo
+ * @version 1.0
  */
 @Mapper(componentModel = "spring")
 public interface DiarioComidaMapper {
 
     /**
-     * Convierte la Entidad a un Record de Respuesta.
-     * Mapeamos el ID de la comida programada y el nombre de la plantilla sugerida.
+     * Convierte la entidad {@link DiarioComida} a su DTO de respuesta {@link DiarioComidaResponseDTO}.
+     * Mapea el identificador de la comida programada y el nombre de la plantilla de sugerencia asociada.
+     *
+     * @param entity Entidad de diario de comida a convertir.
+     * @return DTO de respuesta con la información detallada del registro.
      */
     @Mapping(source = "comidaProgramada.id", target = "comidaProgramadaId")
     @Mapping(source = "comidaProgramada.plantilla.nombre", target = "nombreComidaSugerida")
     DiarioComidaResponseDTO toResponseDto(DiarioComida entity);
 
     /**
-     * Convierte el Record de Petición a una Entidad.
-     * Ignoramos el ID, el paciente, la relación de comidaProgramada y la fecha del sistema,
-     * ya que estos se asignan en la lógica de negocio del Service.
+     * Convierte el DTO de petición {@link DiarioComidaRequestDTO} a la entidad {@link DiarioComida}.
+     *
+     * @param dto DTO con los datos del registro de comida reportado por el paciente.
+     * @return Entidad {@link DiarioComida} inicializada.
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "paciente", ignore = true)
@@ -36,7 +46,10 @@ public interface DiarioComidaMapper {
     DiarioComida toEntity(DiarioComidaRequestDTO dto);
 
     /**
-     * Mapeo de listas para reportes históricos o semanales.
+     * Mapea una lista de entidades {@link DiarioComida} a una lista de {@link DiarioComidaResponseDTO}.
+     *
+     * @param entities Lista de entidades de diario de comida.
+     * @return Lista de DTOs de respuesta correspondientes.
      */
     List<DiarioComidaResponseDTO> toResponseDtoList(List<DiarioComida> entities);
 }

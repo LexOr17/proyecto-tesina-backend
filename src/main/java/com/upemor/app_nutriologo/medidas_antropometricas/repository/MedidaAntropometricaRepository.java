@@ -10,6 +10,8 @@ public interface MedidaAntropometricaRepository extends JpaRepository<MedidaAntr
 
     List<MedidaAntropometrica> findByPacienteIdOrderByFechaMedicionAsc(Long pacienteId);
 
+    List<MedidaAntropometrica> findByPacienteIdAndFechaMedicionBetweenOrderByFechaMedicionAsc(Long pacienteId, java.time.LocalDate inicio, java.time.LocalDate fin);
+
     Optional<MedidaAntropometrica> findTopByPacienteIdOrderByFechaMedicionDesc(Long pacienteId);
 
 }

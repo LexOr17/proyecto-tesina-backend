@@ -5,6 +5,7 @@ import com.upemor.app_nutriologo.plantillas.dto.PlantillaResponseDTO;
 import com.upemor.app_nutriologo.sugerencia_plantilla.dto.SugerenciaPlantillaRequestDTO;
 import com.upemor.app_nutriologo.sugerencia_plantilla.dto.SugerenciaPlantillaResponseDTO;
 import com.upemor.app_nutriologo.sugerencia_plantilla.dto.SugerenciaRevisionDTO;
+import com.upemor.app_nutriologo.sugerencia_plantilla.enums.EstadoSugerencia;
 import com.upemor.app_nutriologo.sugerencia_plantilla.service.SugerenciaPlantillaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,9 +66,10 @@ public class SugerenciaPlantillaController {
     @GetMapping("/mis-sugerencias")
     @PreAuthorize("hasRole('PACIENTE')")
     public ResponseEntity<ApiResponse<Page<SugerenciaPlantillaResponseDTO>>> getMisSugerencias(
+            @RequestParam(name = "estado", required = false) EstadoSugerencia estado,
             @PageableDefault(size = 10, sort = "fechaEnvio") Pageable pageable) {
 
-        Page<SugerenciaPlantillaResponseDTO> page = sugerenciaService.obtenerSugerenciasDePaciente(pageable);
+        Page<SugerenciaPlantillaResponseDTO> page = sugerenciaService.obtenerSugerenciasDePaciente(pageable, estado);
         return ResponseEntity.ok(ApiResponse.success(page, "Historial de sugerencias del paciente"));
     }
 

@@ -43,4 +43,58 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
         long countCitasHoy(
                         @Param("inicio") LocalDateTime inicio,
                         @Param("fin") LocalDateTime fin);
+
+        @Query("SELECT c FROM Cita c WHERE c.paciente.id = :pacienteId " +
+               "AND c.fechaHoraInicio >= :inicio AND c.fechaHoraInicio <= :fin")
+        List<Cita> findByPacienteIdAndRangoFechas(
+                        @Param("pacienteId") Long pacienteId,
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fin") LocalDateTime fin);
+
+        // ─── Para el Calendario ──────────────────────────────────────────────
+
+        @EntityGraph(attributePaths = { "paciente", "nutriologo" })
+        @Query("SELECT c FROM Cita c WHERE c.nutriologo.id = :nutriologoId " +
+               "AND c.fechaHoraInicio >= :inicio AND c.fechaHoraInicio <= :fin " +
+               "ORDER BY c.fechaHoraInicio ASC")
+        List<Cita> findCitasByNutriologoIdAndRangoFechas(
+                        @Param("nutriologoId") Long nutriologoId,
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fin") LocalDateTime fin);
+
+        @EntityGraph(attributePaths = { "paciente", "nutriologo" })
+        @Query("SELECT c FROM Cita c WHERE c.paciente.id = :pacienteId " +
+               "AND c.fechaHoraInicio >= :inicio AND c.fechaHoraInicio <= :fin " +
+               "ORDER BY c.fechaHoraInicio ASC")
+        List<Cita> findCitasByPacienteIdAndRangoFechas(
+                        @Param("pacienteId") Long pacienteId,
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fin") LocalDateTime fin);
+
+        // ─── Para el Reporte de Asistencia ───────────────────────────────────
+
+        /**
+         * Obtiene todas las citas de un nutriólogo específico dentro de un rango de fechas.
+         * Usado cuando el ADMINISTRADOR filtra por nutriólogo o el NUTRIÓLOGO consulta las suyas.
+         */
+        @EntityGraph(attributePaths = { "paciente", "nutriologo" })
+        @Query("SELECT c FROM Cita c WHERE c.nutriologo.id = :nutriologoId " +
+               "AND c.fechaHoraInicio >= :inicio AND c.fechaHoraInicio <= :fin " +
+               "ORDER BY c.fechaHoraInicio ASC")
+        List<Cita> findCitasParaReporteAsistenciaPorNutriologo(
+                        @Param("nutriologoId") Long nutriologoId,
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fin") LocalDateTime fin);
+
+        /**
+         * Obtiene todas las citas de todos los nutriólogos dentro de un rango de fechas.
+         * Usado por el ADMINISTRADOR en la vista global.
+         */
+        @EntityGraph(attributePaths = { "paciente", "nutriologo" })
+        @Query("SELECT c FROM Cita c " +
+               "WHERE c.fechaHoraInicio >= :inicio AND c.fechaHoraInicio <= :fin " +
+               "ORDER BY c.fechaHoraInicio ASC")
+        List<Cita> findCitasParaReporteAsistenciaGlobal(
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fin") LocalDateTime fin);
 }

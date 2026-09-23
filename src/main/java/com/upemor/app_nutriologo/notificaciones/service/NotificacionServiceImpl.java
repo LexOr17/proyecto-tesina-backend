@@ -48,10 +48,10 @@ public class NotificacionServiceImpl implements NotificacionService {
                                String mensaje,
                                String actionUrl) {
 
-        Long emisorId = userContextService.getCurrentUserId();
+        Long emisorId = getEmisorIdSeguro();
 
-        // El emisor no se notifica a sí mismo
-        if (emisorId.equals(usuarioId)) {
+        // El emisor no se notifica a sí mismo si está presente
+        if (emisorId != null && emisorId.equals(usuarioId)) {
             log.debug("NotificacionService: emisor {} es el mismo destinatario, se omite.", emisorId);
             return;
         }
@@ -83,12 +83,12 @@ public class NotificacionServiceImpl implements NotificacionService {
                              String mensaje,
                              String actionUrl) {
 
-        Long emisorId = userContextService.getCurrentUserId();
+        Long emisorId = getEmisorIdSeguro();
 
         List<Usuario> destinatarios = usuarioRepository.findAll().stream()
                 .filter(u -> u.getActivo() != null && u.getActivo())
                 .filter(u -> roles.contains(u.getRol()))
-                .filter(u -> !u.getId().equals(emisorId))  // excluir al emisor
+                .filter(u -> emisorId == null || !u.getId().equals(emisorId))  // excluir al emisor
                 .collect(Collectors.toList());
 
         if (destinatarios.isEmpty()) {
@@ -111,11 +111,11 @@ public class NotificacionServiceImpl implements NotificacionService {
                              String mensaje,
                              String actionUrl) {
 
-        Long emisorId = userContextService.getCurrentUserId();
+        Long emisorId = getEmisorIdSeguro();
 
         List<Usuario> destinatarios = usuarioRepository.findAll().stream()
                 .filter(u -> u.getActivo() != null && u.getActivo())
-                .filter(u -> !u.getId().equals(emisorId))  // excluir al emisor
+                .filter(u -> emisorId == null || !u.getId().equals(emisorId))  // excluir al emisor
                 .collect(Collectors.toList());
 
         if (destinatarios.isEmpty()) {
@@ -128,6 +128,14 @@ public class NotificacionServiceImpl implements NotificacionService {
         for (Usuario destinatario : destinatarios) {
             NotificacionUsuario nu = crearRegistroDestinatario(notificacion, destinatario);
             enviarPorWebSocket(nu);
+        }
+    }
+
+    private Long getEmisorIdSeguro() {
+        try {
+            return userContextService.getCurrentUserId();
+        } catch (Exception e) {
+            return null;
         }
     }
 

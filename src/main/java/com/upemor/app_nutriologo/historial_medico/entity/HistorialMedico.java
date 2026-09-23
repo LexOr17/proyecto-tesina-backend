@@ -8,6 +8,8 @@ import com.upemor.app_nutriologo.paciente.entity.Paciente;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -100,5 +102,6 @@ public class HistorialMedico {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medida_antropometrica_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private MedidaAntropometrica medidaAntropometrica;
 }

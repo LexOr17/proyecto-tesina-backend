@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Recuperación de contraseña</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f0fdf4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+<!-- Wrapper table for email client compatibility -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f0fdf4;">
+    <tr>
+        <td align="center" style="padding: 40px 16px;">
+
+            <!-- Main card -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560"
+                   style="max-width: 560px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+                <!-- Header with gradient -->
+                <tr>
+                    <td style="background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%); padding: 36px 40px; text-align: center;">
+                        <!-- App icon -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+                            <tr>
+                                <td style="background-color: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center;">
+                                    <span style="font-size: 28px; line-height: 1;">&#127823;</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <h1 style="color: #ffffff; margin: 16px 0 4px 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
+                            NutriGestor
+                        </h1>
+                        <p style="color: rgba(255,255,255,0.85); margin: 0; font-size: 14px; font-weight: 400;">
+                            Gestión de Dietas y Nutrición
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Body content -->
+                <tr>
+                    <td style="padding: 36px 40px 20px 40px;">
+                        <!-- Recovery badge -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="background-color: #fef3c7; border-radius: 20px; padding: 6px 16px;">
+                                    <span style="color: #92400e; font-size: 13px; font-weight: 600;">&#128274; Recuperación de contraseña</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h2 style="color: #1e293b; margin: 20px 0 8px 0; font-size: 20px; font-weight: 700;">
+                            Hola, <span th:text="${nombre}" style="color: #0d9488;">Usuario</span>
+                        </h2>
+                        <p style="color: #64748b; margin: 0 0 24px 0; font-size: 15px; line-height: 1.6;">
+                            Hemos recibido una solicitud para restablecer tu contraseña. Se ha generado una nueva contraseña temporal para tu cuenta:
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- New password box -->
+                <tr>
+                    <td style="padding: 0 40px;" align="center">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                               style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                            <tr>
+                                <td style="padding: 24px; text-align: center;">
+                                    <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0 0 12px 0;">
+                                        &#128273; Tu nueva contraseña
+                                    </p>
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+                                        <tr>
+                                            <td style="background-color: #ffffff; border: 2px solid #0d9488; border-radius: 8px; padding: 14px 32px;">
+                                                <span th:text="${password}" style="color: #0d9488; font-size: 22px; font-weight: 700; font-family: 'Courier New', Courier, monospace; letter-spacing: 3px;">
+                                                    ••••••••
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Security warning -->
+                <tr>
+                    <td style="padding: 24px 40px 12px 40px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                               style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 10px;">
+                            <tr>
+                                <td style="padding: 16px 20px;">
+                                    <p style="color: #991b1b; font-size: 13px; line-height: 1.5; margin: 0;">
+                                        <strong>&#9888;&#65039; Importante:</strong> Por tu seguridad, te recomendamos cambiar esta contraseña temporal lo antes posible después de iniciar sesión.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Help text -->
+                <tr>
+                    <td style="padding: 12px 40px 12px 40px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                               style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;">
+                            <tr>
+                                <td style="padding: 16px 20px;">
+                                    <p style="color: #1e40af; font-size: 13px; line-height: 1.5; margin: 0;">
+                                        <strong>&#128712; ¿No solicitaste este cambio?</strong> Si no realizaste esta solicitud, contacta al administrador del sistema de inmediato.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Divider -->
+                <tr>
+                    <td style="padding: 24px 40px 0 40px;">
+                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 0;"/>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 24px 40px 36px 40px; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0;">
+                            Este es un correo automático generado por <strong style="color: #64748b;">NutriGestor</strong>.<br/>
+                            Por favor, no responda a este mensaje.
+                        </p>
+                        <p style="color: #cbd5e1; font-size: 11px; margin: 12px 0 0 0;">
+                            &copy; 2026 NutriGestor &mdash; Gestión de Dietas y Nutrición
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

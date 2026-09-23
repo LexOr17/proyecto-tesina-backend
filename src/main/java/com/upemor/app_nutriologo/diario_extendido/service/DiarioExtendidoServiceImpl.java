@@ -136,6 +136,9 @@ public class DiarioExtendidoServiceImpl implements DiarioExtendidoService {
     }
 
     private void validarRelacionPacienteNutriologo(Paciente paciente, Long nutriologoId) {
+        if (userContextService.isAdmin()) {
+            return;
+        }
         if (paciente.getNutriologo() == null || !paciente.getNutriologo().getId().equals(nutriologoId)) {
             throw new AccessDeniedException("No tienes permiso para acceder a los datos de este paciente.");
         }

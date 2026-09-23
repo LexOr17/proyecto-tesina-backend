@@ -35,6 +35,23 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    public void sendHtmlEmail(String[] destinatario, String asunto, String contenidoHtml) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
+
+            helper.setFrom(emailSender);
+            helper.setTo(destinatario);
+            helper.setSubject(asunto);
+            helper.setText(contenidoHtml, true);
+
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new MailSendException("Error al enviar correo electrónico HTML", e);
+        }
+    }
+
+    @Override
     public void sendEmailWithFile(String[] destinatario, String asunto, String contenido, File archivo) {
 
         try {

@@ -2,6 +2,7 @@ package com.upemor.app_nutriologo.login.service;
 
 import com.upemor.app_nutriologo.common.exceptions.ResourceNotFoundException;
 import com.upemor.app_nutriologo.correo.service.EmailService;
+import com.upemor.app_nutriologo.correo.service.EmailTemplateService;
 import com.upemor.app_nutriologo.login.dto.LoginRequestDTO;
 import com.upemor.app_nutriologo.login.dto.LoginResponseDTO;
 import com.upemor.app_nutriologo.login.dto.PasswordRecoveryRequestDTO;
@@ -17,6 +18,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementación de la capa de servicios para la autenticación y recuperación de contraseñas.
+ * <p>
+ * Valida credenciales contra el {@link AuthenticationManager}, genera tokens JWT a través de {@link JwtUtils},
+ * y gestiona el flujo de recuperación de contraseña generando una clave temporal aleatoria con {@link PasswordGenerator}
+ * y notificando al usuario por correo electrónico mediante {@link EmailService}.
+ * </p>
+ *
+ * @author Sistema Nutriólogo
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService {
@@ -25,8 +37,15 @@ public class LoginServiceImpl implements LoginService {
     private final JwtUtils jwtUtils;
     private final UsuarioRepository usuarioRepository;
     private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Autentica al usuario en el sistema y expide un token JWT junto con los datos de sesión.
+     *
+     * @param request credenciales del usuario (correo y contraseña).
+     * @return {@link LoginResponseDTO} con el token de acceso generado y datos del usuario autenticado.
+     */
     @Override
     public LoginResponseDTO login(LoginRequestDTO request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -52,6 +71,12 @@ public class LoginServiceImpl implements LoginService {
                 .build();
     }
 
+    /**
+     * Restablece la contraseña de un usuario generando una clave temporal y enviándola por correo electrónico.
+     *
+     * @param request DTO con el correo de la cuenta a recuperar.
+     * @throws ResourceNotFoundException si no existe ningún usuario registrado con el correo indicado.
+     */
     @Override
     public void recoverPassword(PasswordRecoveryRequestDTO request) {
         Usuario usuario = usuarioRepository.findByCorreo(request.getEmail())
@@ -61,12 +86,9 @@ public class LoginServiceImpl implements LoginService {
         usuario.setPassword(passwordEncoder.encode(newPassword));
         usuarioRepository.save(usuario);
 
-        String emailContent = "Hola " + usuario.getNombre() + ",<br><br>" +
-                "Tu nueva contraseña es: " + newPassword + "<br><br>" +
-                "Te recomendamos que la cambies lo antes posible.<br><br>" +
-                "Saludos,<br>" +
-                "El equipo de Nutriólogos";
+        String contenidoHtml = emailTemplateService.renderRecuperacionEmail(
+                usuario.getNombre(), newPassword);
 
-        emailService.sendEmail(new String[]{usuario.getCorreo()}, "Recuperación de contraseña", emailContent);
+        emailService.sendHtmlEmail(new String[]{usuario.getCorreo()}, "Recuperación de contraseña", contenidoHtml);
     }
 }

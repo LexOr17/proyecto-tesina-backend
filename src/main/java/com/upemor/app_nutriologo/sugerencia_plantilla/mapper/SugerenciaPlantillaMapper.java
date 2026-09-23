@@ -25,6 +25,7 @@ public interface SugerenciaPlantillaMapper {
 
     @Mapping(source = "alimento.id", target = "alimentoId")
     @Mapping(source = "alimento.nombre", target = "nombreAlimento")
+    @Mapping(source = "alimento.porcionBase", target = "porcionBase")
     @Mapping(source = "alimento.unidadPorcion", target = "unidadPorcion")
     PlantillaAlimentoResponseDTO toDetalleDto(SugerenciaPlantillaDetalle detalle);
 

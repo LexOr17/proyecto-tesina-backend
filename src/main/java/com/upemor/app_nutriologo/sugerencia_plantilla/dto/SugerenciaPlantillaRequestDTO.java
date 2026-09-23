@@ -2,6 +2,7 @@ package com.upemor.app_nutriologo.sugerencia_plantilla.dto;
 
 import com.upemor.app_nutriologo.plantillas.dto.PlantillaAlimentoRequestDTO;
 import com.upemor.app_nutriologo.plantillas.enums.TipoComida;
+import com.upemor.app_nutriologo.sugerencia_plantilla.enums.CategoriaMotivoSugerencia;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -17,7 +18,10 @@ public record SugerenciaPlantillaRequestDTO(
         @NotNull(message = "El tipo de comida no puede ser nulo")
         TipoComida tipoComida,
 
-        /** Justificación o razón de la sugerencia (opcional) */
+        /** Categoría del motivo de la sugerencia (opcional, default PREFERENCIA_SABOR) */
+        CategoriaMotivoSugerencia categoriaMotivo,
+
+        /** Justificación o razón detallada de la sugerencia (opcional) */
         String motivoSugerencia,
 
         /**
@@ -30,4 +34,3 @@ public record SugerenciaPlantillaRequestDTO(
         @Valid
         List<PlantillaAlimentoRequestDTO> alimentos
 ) {}
-

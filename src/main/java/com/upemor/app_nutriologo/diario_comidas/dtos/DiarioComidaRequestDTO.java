@@ -7,6 +7,17 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+/**
+ * DTO para el registro o actualización del consumo de una comida en el diario del paciente.
+ *
+ * @param comidaProgramadaId Identificador opcional de la comida programada en el plan alimenticio.
+ * @param fecha              Fecha en la que se realizó o debió realizarse el consumo.
+ * @param horario            Momento o tipo de comida correspondiente (desayuno, almuerzo, merienda, cena).
+ * @param estado             Estado de cumplimiento del consumo (cumplido, modificado, saltada, etc.).
+ * @param detallesComidaReal Descripción de los alimentos y porciones efectivamente consumidos.
+ * @author Sistema Nutriólogo
+ * @version 1.0
+ */
 public record DiarioComidaRequestDTO(
 
         Long comidaProgramadaId,
