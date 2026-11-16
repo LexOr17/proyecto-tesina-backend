@@ -12,7 +12,7 @@ spring:
   # ----------------------------------------------------------------------------
   datasource:
     # URL de conexión JDBC: protocolo://servidor:puerto/nombre_base_datos
-    url: jdbc:mariadb://localhost:3306/nutriologo_db
+    url: jdbc:mariadb://localhost:3306/*******
     # Credenciales de acceso a la base de datos
     username: root
     password: 1234
@@ -59,7 +59,7 @@ secreteJwtString: 5367566B59703373367639792F423F4528482B4D6251655468576D5A713474
 # ==============================================================================
 email:
   # Dirección de correo desde donde se enviarán las notificaciones
-  sender: lexhar13@gmail.com
+  sender: example@email.com
   # Servidor SMTP del proveedor de correo (ej. Gmail, Outlook, Amazon SES)
   host: smtp.gmail.com
   # Puerto del servidor SMTP (587 estándar para STARTTLS/TLS; 465 para SSL directo)
@@ -67,7 +67,7 @@ email:
   # Contraseña de aplicación del correo emisor.
   # Sintaxis ${VARIABLE:valor_por_defecto}: toma la variable de entorno MAIL_PASSWORD si existe;
   # si no existe en el sistema, usa el valor por defecto configurado.
-  password: ${MAIL_PASSWORD:bmopdoipblhkbcji}
+  password: **************
 
 # ==============================================================================
 # ALMACENAMIENTO DE ARCHIVOS EN DISCO
@@ -84,7 +84,7 @@ file:
 app:
   # Credenciales y datos del usuario Administrador inicial sembrado en la BD al arrancar (DataInitializer)
   admin:
-    correo: admin@nutriologo.com
+    correo: example@email.com
     password: Admin123
     nombre: Admin
     apellido-paterno: Principal
